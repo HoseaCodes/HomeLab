@@ -1,4 +1,4 @@
-# Homelab
+# Hosea Homelab
 
 **Building, operating, and documenting a compact platform for backend applications and distributed systems.**
 
@@ -6,7 +6,9 @@ This repository documents my home lab as it grows from a single Proxmox host int
 
 My goal is to become a stronger backend engineer by owning the full path from source code to a running service: the infrastructure, network, deployment process, data, monitoring, and operational decisions behind it.
 
-**Current milestone:** Ubuntu Server, Docker, and Portainer are running in the first VM. A recovery snapshot has been created after setup.
+**Current milestone:** Ubuntu, Docker, and Portainer are running in the first VM. Prometheus and Grafana display guest resource metrics; Uptime Kuma checks Proxmox, Portainer, and Grafana. Gmail outage and recovery notifications have been tested, and the `monitoring-ready` snapshot is saved.
+
+See [Monitoring and alerting](docs/monitoring.md) for configuration, validation, and operating procedures.
 
 **Last updated:** October 23, 2026
 
@@ -36,10 +38,17 @@ A 2014 Mac mini is available for future experimentation; it is not yet part of t
 
 ```mermaid
 flowchart TD
-    A["Dell OptiPlex 3070"] --> B["Proxmox VE"]
-    B --> C["VM 100: docker01 / Ubuntu Server"]
-    C --> D["Docker Engine and Compose"]
-    D --> E["Portainer Community Edition"]
+    P["Dell / Proxmox: pve01"] --> V["VM 100: docker01 / Ubuntu"]
+    V --> D["Docker Engine"]
+    V --> N["Node Exporter service"]
+    D --> T["Portainer"]
+    D --> M["Prometheus and Grafana"]
+    D --> K["Uptime Kuma"]
+    M -->|"Collects guest metrics"| N
+    K -->|"Checks web interface"| P
+    K -->|"Checks web interface"| T
+    K -->|"Checks Grafana health"| M
+    K -->|"Outage and recovery email"| G["Gmail SMTP"]
 ```
 
 | Layer | Verified configuration |
@@ -53,10 +62,13 @@ flowchart TD
 | Guest integration | QEMU guest agent installed and confirmed active |
 | Container platform | Docker Engine and Docker Compose plugin installed |
 | Management UI | Portainer CE connected to the local Docker environment |
+| Resource monitoring | Node Exporter, Prometheus, and Grafana; Node Exporter Full dashboard |
+| Availability monitoring | Uptime Kuma with checks for Proxmox, Portainer, and Grafana |
+| Notifications | Gmail SMTP; test message and Grafana outage/recovery emails confirmed |
 
 The Docker `hello-world` container completed with exit code `0`. Portainer is running and can list the local containers. No public application has been deployed through this lab yet.
 
-## Completed foundation
+## Completed foundation and monitoring
 
 - [x] Install Proxmox on the Dell.
 - [x] Configure the Proxmox management network.
@@ -71,25 +83,46 @@ The Docker `hello-world` container completed with exit code `0`. Portainer is ru
 - [x] Deploy Portainer and complete administrator setup.
 - [x] Verify Portainer can manage the local Docker environment.
 - [x] Create `ubuntu-base` and `docker-portainer-ready` recovery snapshots.
+- [x] Install Node Exporter and verify successful Prometheus scrapes.
+- [x] Connect Grafana and import Node Exporter Full, dashboard ID `1860`.
+- [x] Deploy Uptime Kuma with SQLite and persistent storage.
+- [x] Add HTTP checks for Proxmox, Portainer, and Grafana.
+- [x] Verify Grafana outage detection and recovery.
+- [x] Configure Gmail and confirm DOWN and UP emails.
+- [x] Create the `monitoring-ready` snapshot with RAM excluded.
 
-Snapshots currently live on the host's storage. They provide rollback points, but they are not independent backups and do not protect against host disk failure.
+Snapshots currently live on the host's storage. They provide rollback points, but they are not independent backups and do not protect against host disk failure. Independent VM backups and restore testing are **deferred until a NAS is available**; neither has been completed.
+
+## Service access
+
+Replace `<VM_IP>` with the reserved LAN address of `docker01` and `<PROXMOX_IP>` with the management address of `pve01`. These are templates for local access, not public URLs. Keep actual bookmarks in private notes.
+
+| Service | Local URL template | Purpose |
+|---|---|---|
+| Uptime Kuma | `http://<VM_IP>:3001/dashboard` | Availability, response times, and outage history |
+| Grafana | `http://<VM_IP>:3000/dashboards` | Guest resource dashboards |
+| Prometheus | `http://<VM_IP>:9090/targets` | Scrape target health |
+| Portainer | `https://<VM_IP>:9443/` | Container administration |
+| Proxmox | `https://<PROXMOX_IP>:8006/` | VM administration and snapshots |
+
+The Portainer and Proxmox links use their base URLs so they do not depend on a particular screen or browser fragment.
 
 ## Roadmap
 
-These phases describe planned work, not completed deployments. Resource allocations and placement will be revisited as the lab grows; the current 16 GB host is not intended to run every listed technology at once.
+The table separates completed work from planned expansion. Resource allocations and placement will be revisited as the lab grows; the current 16 GB host is not intended to run every listed technology at once.
 
 | Phase | Build | Evidence of completion |
 |---|---|---|
 | 1 — Foundation | Proxmox, Ubuntu, Docker, Portainer | Working VM, SSH access, successful container test, recovery snapshots. **Complete.** |
-| 2 — Monitoring | Prometheus, Grafana, relevant exporters, availability checks | Dashboards for host/guest resources and service health; one tested alert. |
+| 2 — Monitoring | Node Exporter, Prometheus, Grafana, Uptime Kuma, Gmail | **Guest metrics, three availability checks, and email alerts complete.** Physical host metrics and independent outage monitoring remain planned. |
 | 3 — Backend service | A Java/Spring Boot API with PostgreSQL; Redis where justified | Repeatable deployment, health checks, persisted data, API tests, and documented design choices. |
 | 4 — Delivery automation | Git-based configuration and a CI runner; evaluate GitLab Runner or Jenkins | A commit triggers tests, builds a versioned image, and deploys it with a documented rollback path. |
 | 5 — Kubernetes | A small k3s environment | Deploy the API with service discovery, configuration, probes, and persistent storage; compare the tradeoffs with Compose. |
 | 6 — Distributed systems | Messaging and asynchronous processing; evaluate Kafka | A documented event flow demonstrating retries, duplicate handling, and failure recovery. |
-| 7 — Recovery and access | Independent backups, restore drills, private remote access, secrets management | A successful restore with measured recovery time and documented access controls. |
+| 7 — Recovery and access | Independent backups, restore drills, private remote access, secrets management | Backups and restore testing deferred until NAS acquisition. Remaining access work is planned. |
 | 8 — Personal services | Selected media, file-transfer, backup, and website workloads | A service with storage, access, monitoring, and recovery requirements documented before regular use. |
 
-Monitoring comes next so later workloads can be evaluated against a baseline. Server resource monitoring and whole-home internet monitoring are separate concerns: bandwidth, latency, and router visibility will need their own measurements.
+Initial guest monitoring and service alerts are running. A longer baseline will help evaluate later workloads. Server resource monitoring and whole-home internet monitoring are separate concerns: bandwidth, latency, and router visibility will need their own measurements.
 
 ## Engineering exercises
 
@@ -109,10 +142,11 @@ Load and failure experiments will be scoped to lab workloads with clear stop con
 
 ## Repository organization
 
-The README is the first deliverable. The following paths are a proposed structure to add as the corresponding work is completed; they are not existing implementations.
+This documentation set contains `README.md` and `docs/monitoring.md`. The remaining paths below are proposed; their implementations have not been added or verified.
 
-| Planned path | Purpose |
+| Path | Purpose |
 |---|---|
+| `docs/monitoring.md` | Completed monitoring setup, service checks, alert validation, and recovery notes |
 | `docs/architecture.md` | Current topology, responsibilities, and resource allocation |
 | `docs/build-log.md` | Dated setup milestones and validation results |
 | `docs/decisions/` | Short records of meaningful technical decisions |
@@ -162,6 +196,9 @@ Selected write-ups can later be published on [hoseacodes.com](https://hoseacodes
 - [Ubuntu Server documentation](https://documentation.ubuntu.com/server/)
 - [Docker Engine installation on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
 - [Portainer CE installation on Docker](https://docs.portainer.io/start/install-ce/server/docker/linux)
+- [Uptime Kuma](https://github.com/louislam/uptime-kuma)
+- [Prometheus documentation](https://prometheus.io/docs/)
+- [Grafana documentation](https://grafana.com/docs/grafana/latest/)
 
 ---
 

@@ -19,15 +19,16 @@ This file answers two questions: **what is actually documented now, and what sti
 | Docker/Compose | Complete | **Documented** | Docker install and `hello-world` validation recorded |
 | Portainer | Complete | **Documented** | Administrator setup and local environment management verified |
 | Guest resource monitoring | Complete | **Detailed** | `monitoring.md`: Node Exporter, Prometheus, Grafana |
-| Availability monitoring | Complete | **Detailed** | `monitoring.md`: Uptime Kuma checks for Proxmox, Portainer, Grafana |
+| Availability monitoring | Complete | **Detailed** | `monitoring.md`: Uptime Kuma checks for Proxmox, Portainer, Grafana, and Social Ring |
 | Email alerting | Complete | **Detailed** | Gmail SMTP test plus real DOWN/UP test recorded |
-| Local recovery snapshots | Complete | **Documented** | `ubuntu-base`, `docker-portainer-ready`, `monitoring-ready` |
+| Public static hosting | Complete | **Documented** | Nginx on `apps-01` serves `/srv/social-ring` through Cloudflare Tunnel |
+| GitHub delivery automation | Complete | **Documented** | Public source repo triggers private workflow; runner updates website files without sudo or Docker access |
+| Local recovery snapshots | Complete | **Documented** | `ubuntu-base`, `docker-portainer-ready`, `monitoring-ready`, and the pre-deploy apps snapshot |
 | Independent VM backup | Not complete | **Documented as deferred** | Waiting for suitable backup storage/NAS |
 | Restore drill | Not complete | **Documented as deferred** | Must restore into isolated environment before claiming recoverability |
 | Physical host metrics | Not complete | **Documented as planned** | Monitoring currently describes `docker01`, not total Dell host resources |
 | Independent outage observer | Not complete | **Documented as planned** | Current Kuma instance shares the host failure domain |
 | Backend application | Not deployed | **Roadmap only** | Java/Spring Boot API + PostgreSQL; Redis only where justified |
-| CI/CD | Not deployed | **Roadmap only** | Git-based delivery and runner/Jenkins evaluation |
 | Kubernetes | Not deployed | **Roadmap only** | Small k3s environment |
 | Messaging | Not deployed | **Roadmap only** | Kafka/event-driven experiment later |
 | Secrets management | Not deployed | **Roadmap only** | Vault or equivalent later |
@@ -42,9 +43,10 @@ This file answers two questions: **what is actually documented now, and what sti
 ## Documentation files now present
 
 - `README.md` — project purpose, current state, roadmap, standards, and success criteria.
-- `monitoring.md` — detailed metrics, service availability, Gmail alerting, outage test, and recovery notes.
+- `monitoring.md` — detailed metrics, service availability, Gmail alerting, outage test, and Social Ring monitoring notes.
+- `social-ring.md` — the public app deployment guide, automation flow, operations, and remaining risks.
 - `hardware-validation.md` — pre-Proxmox hardware inspection, diagnostics, keyboard/firmware lessons, and BIOS-record gaps.
-- `architecture.md` — current physical, virtual, and monitoring topology with failure-domain boundaries.
+- `architecture.md` — current physical, virtual, public app flow, and monitoring topology with failure-domain boundaries.
 - `build-log.md` — dated milestone history separating complete work from missing details.
 - `equipment-inventory.md` — deployed/purchased/planned physical equipment and compatibility notes.
 - `documentation-status.md` — this audit of documented, partial, planned, and deferred work.
@@ -70,11 +72,13 @@ These are documentation gaps even though some underlying functionality already w
 - UPS integration and graceful shutdown
 - High-availability/second Proxmox node
 - k3s/Kubernetes
-- CI/CD runner
+- Backend application deployment and database migrations
 - Kafka/messaging
 - Vault/secrets platform
 - Dedicated firewall/VPN appliance
-- Public application hosting
+- Public root-domain redirect and canonical HTTPS enforcement (pending verification)
+- Clean URLs without `.html` suffixes (pending verification)
+- Public HTTPS monitoring for the live site (pending verification)
 
 ## Documentation rule
 

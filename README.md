@@ -6,18 +6,19 @@ This repository documents my home lab as it grows from a single Proxmox host int
 
 My goal is to become a stronger backend engineer by owning the full path from source code to a running service: the infrastructure, network, deployment process, data, monitoring, and operational decisions behind it.
 
-**Current milestone:** Ubuntu, Docker, and Portainer are running in the first VM. Prometheus and Grafana display guest resource metrics; Uptime Kuma checks Proxmox, Portainer, and Grafana. Gmail outage and recovery notifications have been tested, and the `monitoring-ready` snapshot is saved.
+**Current milestone:** Social Ring is publicly hosted from a dedicated Ubuntu Apps VM on the Dell Proxmox host. Nginx serves the static website through Cloudflare Tunnel with HTTPS. Pushes to the source repository trigger a private GitHub Actions deployment workflow, and Portainer manages the Apps VM’s containers. Local availability monitoring and outage/recovery detection have been verified.
 
 Documentation set:
 
 - [Hardware validation](docs/hardware-validation.md) — Node #1 baseline, Dell diagnostics, and BIOS-record gaps.
-- [Current architecture](docs/architecture.md) — physical, virtual, and monitoring topology.
+- [Current architecture](docs/architecture.md) — physical, virtual, monitoring topology, and public app flow.
 - [Build log](docs/build-log.md) — dated milestones and incomplete details.
-- [Monitoring and alerting](docs/monitoring.md) — metrics, availability checks, Gmail notifications, and outage validation.
+- [Monitoring and alerting](docs/monitoring.md) — metrics, availability checks, Gmail notifications, and Social Ring validation.
+- [Social Ring deployment](docs/social-ring.md) — the public static-site deployment guide for the Apps VM.
 - [Equipment inventory](docs/equipment-inventory.md) — in-service, purchased, and planned hardware.
 - [Documentation status](docs/documentation-status.md) — what is documented, partial, planned, or deferred.
 
-**Last updated:** October 24, 2026
+**Last updated:** October 25, 2026
 
 ## Why I am building this
 
@@ -45,17 +46,23 @@ A 2014 Mac mini is available for future experimentation; it is not yet part of t
 
 ```mermaid
 flowchart TD
-    P["Dell / Proxmox: pve01"] --> V["VM 100: docker01 / Ubuntu"]
-    V --> D["Docker Engine"]
-    V --> N["Node Exporter service"]
+    P["Dell / Proxmox: pve01"] --> V1["VM 100: docker01 / Ubuntu"]
+    P --> V2["VM 101: apps-01 / Ubuntu"]
+    V1 --> D["Docker Engine"]
+    V1 --> N["Node Exporter service"]
     D --> T["Portainer"]
     D --> M["Prometheus and Grafana"]
     D --> K["Uptime Kuma"]
+    V2 --> A["Docker + Nginx"]
+    A --> S["/srv/social-ring"]
+    A --> C["Cloudflare Tunnel"]
     M -->|"Collects guest metrics"| N
     K -->|"Checks web interface"| P
     K -->|"Checks web interface"| T
     K -->|"Checks Grafana health"| M
+    K -->|"Checks Social Ring availability"| A
     K -->|"Outage and recovery email"| G["Gmail SMTP"]
+    C --> H["https://www.social-ring.com"]
 ```
 
 | Layer | Verified configuration |
@@ -70,10 +77,14 @@ flowchart TD
 | Container platform | Docker Engine and Docker Compose plugin installed |
 | Management UI | Portainer CE connected to the local Docker environment |
 | Resource monitoring | Node Exporter, Prometheus, and Grafana; Node Exporter Full dashboard |
-| Availability monitoring | Uptime Kuma with checks for Proxmox, Portainer, and Grafana |
+| Availability monitoring | Uptime Kuma with checks for Proxmox, Portainer, Grafana, and the local Social Ring availability check |
 | Notifications | Gmail SMTP; test message and Grafana outage/recovery emails confirmed |
+| Public app VM | `apps-01`, VM ID `101`; Ubuntu Server 24.04.5 LTS, 2 vCPU, 2 GiB RAM, 32 GiB virtual disk |
+| Public app runtime | Nginx serves static content from `/srv/social-ring` |
+| Public access | Cloudflare Tunnel terminates HTTPS at `https://www.social-ring.com` and `https://lab.social-ring.com` |
+| Delivery automation | Private GitHub Actions workflow deploys website updates from the public source repository |
 
-The Docker `hello-world` container completed with exit code `0`. Portainer is running and can list the local containers. No public application has been deployed through this lab yet.
+The Docker `hello-world` container completed with exit code `0`. Portainer is running and can list the local containers. The primary public deployment in the current lab is a static Social Ring site served from the dedicated Apps VM, not a backend application with database migrations or Kubernetes.
 
 ## Completed foundation and monitoring
 
@@ -97,6 +108,13 @@ The Docker `hello-world` container completed with exit code `0`. Portainer is ru
 - [x] Verify Grafana outage detection and recovery.
 - [x] Configure Gmail and confirm DOWN and UP emails.
 - [x] Create the `monitoring-ready` snapshot with RAM excluded.
+- [x] Create VM `101`, hostname `apps-01`, on Ubuntu Server 24.04.5 LTS with 2 vCPU, 2 GiB RAM, and 32 GiB disk.
+- [x] Install Docker and Docker Compose on `apps-01` and confirm the VM starts automatically through Proxmox with a DHCP reservation.
+- [x] Connect `apps-01` to Portainer Agent and serve the Social Ring static site through Nginx from `/srv/social-ring`.
+- [x] Confirm a local availability HTTP check at `http://<APPS_VM_IP>:8080` and validate a controlled outage/recovery test.
+- [x] Deploy the self-hosted GitHub Actions runner as `github-runner` with permission to update website files without sudo or Docker access.
+- [x] Confirm the private deployment workflow publishes the static website and the Cloudflare Tunnel serves the site over HTTPS.
+- [x] Save the pre-deploy snapshot before the GitHub-driven change set was applied.
 
 Snapshots currently live on the host's storage. They provide rollback points, but they are not independent backups and do not protect against host disk failure. Independent VM backups and restore testing are **deferred until a NAS is available**; neither has been completed.
 
@@ -106,6 +124,7 @@ Replace `<VM_IP>` with the reserved LAN address of `docker01` and `<PROXMOX_IP>`
 
 | Service | Local URL template | Purpose |
 |---|---|---|
+| Social Ring | `http://<APPS_VM_IP>:8080` | Local HTTP availability check for the public static site |
 | Uptime Kuma | `http://<VM_IP>:3001/dashboard` | Availability, response times, and outage history |
 | Grafana | `http://<VM_IP>:3000/dashboards` | Guest resource dashboards |
 | Prometheus | `http://<VM_IP>:9090/targets` | Scrape target health |
@@ -122,12 +141,13 @@ The table separates completed work from planned expansion. Resource allocations 
 |---|---|---|
 | 1 — Foundation | Proxmox, Ubuntu, Docker, Portainer | Working VM, SSH access, successful container test, recovery snapshots. **Complete.** |
 | 2 — Monitoring | Node Exporter, Prometheus, Grafana, Uptime Kuma, Gmail | **Guest metrics, three availability checks, and email alerts complete.** Physical host metrics and independent outage monitoring remain planned. |
-| 3 — Backend service | A Java/Spring Boot API with PostgreSQL; Redis where justified | Repeatable deployment, health checks, persisted data, API tests, and documented design choices. |
-| 4 — Delivery automation | Git-based configuration and a CI runner; evaluate GitLab Runner or Jenkins | A commit triggers tests, builds a versioned image, and deploys it with a documented rollback path. |
-| 5 — Kubernetes | A small k3s environment | Deploy the API with service discovery, configuration, probes, and persistent storage; compare the tradeoffs with Compose. |
-| 6 — Distributed systems | Messaging and asynchronous processing; evaluate Kafka | A documented event flow demonstrating retries, duplicate handling, and failure recovery. |
-| 7 — Recovery and access | Independent backups, restore drills, private remote access, secrets management | Backups and restore testing deferred until NAS acquisition. Remaining access work is planned. |
-| 8 — Personal services | Selected media, file-transfer, backup, and website workloads | A service with storage, access, monitoring, and recovery requirements documented before regular use. |
+| 3 — Static public hosting | Public website on the Apps VM, Nginx, Cloudflare Tunnel, HTTPS | **Static website is live through Cloudflare, auto-deployed from GitHub, and local availability is confirmed.** Root-domain redirect, clean URLs, and public HTTPS monitoring remain pending verification. |
+| 4 — Backend service | A Java/Spring Boot API with PostgreSQL; Redis where justified | Repeatable deployment, health checks, persisted data, API tests, and documented design choices. |
+| 5 — Delivery automation | Git-based configuration and a CI runner; evaluate GitLab Runner or Jenkins | **Private GitHub deployment workflow is operating for the website.** Backend build pipelines, security checks, and broader CI orchestration remain planned. |
+| 6 — Kubernetes | A small k3s environment | Deploy the API with service discovery, configuration, probes, and persistent storage; compare the tradeoffs with Compose. |
+| 7 — Distributed systems | Messaging and asynchronous processing; evaluate Kafka | A documented event flow demonstrating retries, duplicate handling, and failure recovery. |
+| 8 — Recovery and access | Independent backups, restore drills, private remote access, secrets management | Backups and restore testing deferred until NAS acquisition. Remaining access work is planned. |
+| 9 — Personal services | Selected media, file-transfer, backup, and website workloads | A service with storage, access, monitoring, and recovery requirements documented before regular use. |
 
 Initial guest monitoring and service alerts are running. A longer baseline will help evaluate later workloads. Server resource monitoring and whole-home internet monitoring are separate concerns: bandwidth, latency, and router visibility will need their own measurements.
 
@@ -157,6 +177,7 @@ The documentation now covers the current architecture, the initial hardware-vali
 | `docs/architecture.md` | Current topology, responsibilities, failure domains, and resource allocation | Added |
 | `docs/build-log.md` | Dated setup milestones and validation results | Added |
 | `docs/monitoring.md` | Monitoring setup, service checks, alert validation, and recovery notes | Existing |
+| `docs/social-ring.md` | Detailed Social Ring deployment, delivery automation, operations, and limits | Added |
 | `docs/equipment-inventory.md` | Deployed, purchased, and planned physical equipment | Added |
 | `docs/documentation-status.md` | Audit of documented, partial, planned, and deferred work | Added |
 | `docs/decisions/` | Short records of meaningful technical decisions | Planned |
@@ -164,6 +185,7 @@ The documentation now covers the current architecture, the initial hardware-vali
 | `docs/incidents/` | Failure observations, causes, fixes, and follow-up work | Planned |
 | `infra/` | Infrastructure configuration and automation added over time | Planned |
 | `services/` | Reviewed Compose manifests and service configuration examples | Planned |
+| `services/social-ring/` | Sanitized Nginx and Compose examples for the public static site | Added as examples pending live comparison |
 | `monitoring/` | Dashboard definitions, scrape configuration, and alert rules | Planned |
 | `apps/` | Backend application code or links to separate application repositories | Planned |
 

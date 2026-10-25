@@ -1,7 +1,7 @@
 # HomeLab Architecture — Current State
 
-**Recorded:** October 24, 2026  
-**Status:** Reflects the currently verified single-host Proxmox lab and monitoring stack.
+**Recorded:** October 25, 2026  
+**Status:** Reflects the verified single-host Proxmox lab, monitoring stack, and the public Social Ring deployment on the dedicated Apps VM.
 
 This document describes what is running today. Planned equipment and services are separated from deployed components so the architecture does not overstate the current lab.
 
@@ -14,7 +14,15 @@ flowchart TD
     R --> P[Dell OptiPlex 3070\nProxmox VE: pve01]
     R --> M[Mac\nBrowser + SSH administration]
     P --> B[vmbr0 Linux bridge]
-    B --> V[VM 100: docker01\nUbuntu Server 24.04.5 LTS]
+    B --> V1[VM 100: docker01\nUbuntu Server 24.04.5 LTS]
+    B --> V2[VM 101: apps-01\nUbuntu Server 24.04.5 LTS]
+    V2 --> Nginx["Nginx container\nServes /srv/social-ring"]
+    Nginx --> CF[Cloudflare Tunnel]
+    CF --> WWW[https://www.social-ring.com]
+    CF --> LAB[https://lab.social-ring.com]
+    V1 --> Portainer[Portainer CE + monitoring stack]
+    V1 --> Kuma[Uptime Kuma]
+    Kuma -->|local checks| Nginx
 ```
 
 The Archer AX55 provides the LAN connectivity used by the current lab and holds the DHCP reservation for `docker01`. The Proxmox management interface and the Ubuntu guest are reachable only on the local/private network unless a later remote-access design explicitly exposes or tunnels them.
@@ -49,6 +57,26 @@ The Archer AX55 provides the LAN connectivity used by the current lab and holds 
 | Administration | SSH from the Mac |
 | Guest integration | QEMU guest agent installed and active |
 
+## Apps VM for the public website
+
+| Resource | Current configuration |
+|---|---|
+| VM ID | `101` |
+| Hostname | `apps-01` |
+| Guest OS | Ubuntu Server 24.04.5 LTS |
+| vCPU | 2 |
+| RAM | 2 GiB |
+| Virtual disk | 32 GiB |
+| NIC | VirtIO |
+| Network path | Guest NIC → `vmbr0` → Archer LAN |
+| Addressing | Router DHCP reservation |
+| Administration | SSH from the Mac and Portainer Agent connection |
+| Public site path | `/srv/social-ring` |
+| Runtime | Nginx container serving static site files |
+| Access path | Local HTTP on `http://<APPS_VM_IP>:8080` |
+| Public access | Cloudflare Tunnel with HTTPS at `https://www.social-ring.com` and `https://lab.social-ring.com` |
+| Automation | Self-hosted GitHub Action runner runs as `github-runner` and updates website files without sudo or Docker access |
+
 ## Application and monitoring architecture
 
 ```mermaid
@@ -72,14 +100,30 @@ flowchart TD
 
 | Service | Purpose | Current state |
 |---|---|---|
-| Docker Engine | Container runtime | Running on `docker01` |
-| Docker Compose plugin | Multi-container/declarative workflow | Installed |
-| Portainer CE | Local Docker administration | Running and verified |
-| Node Exporter | Ubuntu guest metrics | Running as a system service |
+| Docker Engine | Container runtime | Running on `docker01` and `apps-01` |
+| Docker Compose plugin | Multi-container/declarative workflow | Installed on both VMs |
+| Portainer CE | Local Docker administration | Running and verified on `docker01` |
+| Portainer Agent | Remote container management for `apps-01` | Connected to the same Portainer instance |
+| Node Exporter | Ubuntu guest metrics | Running as a system service on `docker01` |
 | Prometheus | Metrics collection/storage | Running; self and guest targets verified `UP` |
 | Grafana | Metrics dashboards | Running with Node Exporter Full dashboard ID `1860` |
 | Uptime Kuma | Service availability checks | Running with persistent SQLite storage |
+| Nginx | Static site hosting from `/srv/social-ring` | Serving the public site on `apps-01` |
+| Cloudflare Tunnel | Public HTTPS exposure | Connected to the static site; no router port forwarding required |
+| GitHub runner | Private deployment automation | Running as `github-runner`; writes website files without sudo or Docker access |
 | Gmail SMTP | Alert delivery | Test message and Grafana DOWN/UP alerts verified |
+
+## Public deployment path
+
+The current public website request path is intentionally simple and local to the lab design:
+
+1. A push to the public source repository triggers the private deployment workflow.
+2. The workflow downloads the static site assets and publishes them to `/srv/social-ring` on `apps-01`.
+3. Nginx serves those files on the local app VM port `8080`.
+4. Cloudflare Tunnel exposes the site over HTTPS without router port forwarding.
+5. Uptime Kuma checks the local HTTP endpoint to confirm the site is up before wider public access is considered stable.
+
+This is a static site workflow, not a backend service with database migrations or a Kubernetes rollout. The deployment automation is complete for the site’s current scope.
 
 ## Recovery checkpoints
 
@@ -88,6 +132,7 @@ flowchart TD
 | `ubuntu-base` | Updated Ubuntu, SSH, QEMU guest agent, DHCP reservation; before Docker |
 | `docker-portainer-ready` | Docker verified and Portainer working; before monitoring |
 | `monitoring-ready` | Metrics, uptime checks, and tested Gmail notifications; RAM excluded |
+| `apps-before-github-deploy` | Confirmed before the private GitHub deployment flow published the Social Ring site |
 
 These are local snapshots on the same physical storage. They are rollback points, not independent backups.
 
@@ -101,6 +146,16 @@ The current design intentionally prioritizes learning and low apartment footprin
 - Gmail alerts depend on outbound internet access.
 - No NAS-backed or off-host VM backup has been completed.
 - No restore drill has been completed.
+
+## Public deployment notes and remaining uncertainty
+
+The verified deployment includes the public static site, the local site endpoint, and the Cloudflare HTTPS exposure. The following behaviors are explicitly not yet confirmed as complete and are intentionally described as pending verification:
+
+- Root-domain redirect and canonical host enforcement.
+- Always Use HTTPS enforcement.
+- Clean URLs without `.html` suffixes.
+- Public HTTPS monitoring via Uptime Kuma or a similar external check.
+- Rollback execution and recovery testing for the Nginx or workflow configuration.
 
 ## Planned physical expansion — not yet part of the running architecture
 

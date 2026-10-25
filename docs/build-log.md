@@ -75,6 +75,28 @@ This log separates verified milestones from plans. A check mark means the work w
 
 See `monitoring.md` for the detailed monitoring configuration and validation notes.
 
+## October 25, 2026 — Public static-site deployment and delivery automation
+
+- [x] Created VM `101`, hostname `apps-01`, on Ubuntu Server 24.04.5 LTS.
+- [x] Allocated 2 vCPU, 2 GiB RAM, and 32 GiB virtual disk for the apps VM.
+- [x] Installed Docker Engine and Docker Compose on `apps-01` and confirmed the VM is reachable with a DHCP reservation.
+- [x] Connected `apps-01` to the existing Portainer installation via Portainer Agent.
+- [x] Configured a static website runtime using Nginx and published website files to `/srv/social-ring`.
+- [x] Confirmed the local site endpoint at `http://<APPS_VM_IP>:8080` responded as expected.
+- [x] Deployed a self-hosted GitHub Actions runner as `github-runner` with file-write access only to the website directory and no sudo or Docker access.
+- [x] Verified the private workflow triggered from the public source repository and published updated website files.
+- [x] Confirmed the site responds over Cloudflare Tunnel using HTTPS at `https://lab.social-ring.com` and `https://www.social-ring.com`.
+- [x] Confirmed no router port forwarding was required for public access.
+- [x] Ran a local Uptime Kuma check and controlled outage/recovery validation for the Social Ring site.
+- [x] Saved a pre-deploy snapshot before the GitHub-driven deployment changes were applied.
+- [ ] Root-domain redirect and `Always Use HTTPS` behavior were instructed but not explicitly confirmed in a live test.
+- [ ] Clean URLs without `.html` extensions were instructed but not explicitly confirmed in a live test.
+- [ ] Rollback execution and recovery testing for the Nginx or workflow configuration were not explicitly confirmed.
+- [ ] Public HTTPS Uptime Kuma monitoring was suggested but not confirmed.
+- [ ] Independent VM backups and isolated restore drills remain deferred.
+
+See `social-ring.md` for the detailed deployment and operations guide.
+
 ## Current deferred work
 
 - [ ] Deploy first backend application and database workload.
@@ -85,6 +107,6 @@ See `monitoring.md` for the detailed monitoring configuration and validation not
 - [ ] Add an external/independent observer if whole-host outage alerting is required.
 - [ ] Acquire/configure independent backup storage.
 - [ ] Run a VM backup and isolated restore drill.
-- [ ] Build CI/CD automation.
+- [ ] Build broader CI/CD automation for backend workloads and release validation.
 - [ ] Build k3s Kubernetes environment.
 - [ ] Evaluate messaging, secrets management, and additional platform services only as projects require them.

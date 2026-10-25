@@ -1,7 +1,7 @@
 # Homelab Monitoring — Metrics, Availability, and Email Alerts
 
-**Recorded:** October 23, 2026  
-**Status:** Guest resource monitoring, three service availability checks, Gmail outage/recovery notifications, and the `monitoring-ready` snapshot are complete.
+**Recorded:** October 25, 2026  
+**Status:** Guest resource monitoring, three service availability checks, Gmail outage/recovery notifications, the `monitoring-ready` snapshot, and the confirmed Social Ring availability check are complete.
 
 [Return to the project README](../README.md).
 
@@ -9,7 +9,7 @@ This milestone adds observability to the lab before deploying application worklo
 
 ## Current scope
 
-The monitored machine is `docker01`, an Ubuntu Server VM running on the Proxmox node `pve01`.
+The monitored machine is `docker01`, an Ubuntu Server VM running on the Proxmox node `pve01`. The Social Ring deployment is monitored separately on `apps-01` with a local HTTP availability check. This page does not claim resource metrics were configured for the Apps VM.
 
 | Resource | Allocation |
 |---|---|
@@ -18,6 +18,8 @@ The monitored machine is `docker01`, an Ubuntu Server VM running on the Proxmox 
 | Memory | 4 GiB |
 | Virtual disk | 64 GiB |
 | Network | VirtIO through Proxmox bridge `vmbr0`; router DHCP reservation |
+| Apps VM | `apps-01`, 2 vCPU / 2 GiB / 32 GiB |
+| Local Social Ring check | `http://<APPS_VM_IP>:8080` |
 
 The dashboard describes the Ubuntu guest. It does not measure the physical Dell's total resource usage or the household's total internet traffic, latency, or connection capacity.
 
@@ -119,6 +121,8 @@ Recommended initial viewing settings are **Last 15 minutes** and **15s refresh**
 | Prometheus self-monitoring target | `UP`, with a recent successful scrape |
 | Grafana dashboard | Populated CPU, memory, disk, and network panels |
 | Selected guest | `docker01` |
+| Social Ring local availability | `UP` on `http://<APPS_VM_IP>:8080` |
+| Social Ring outage/recovery validation | Controlled downtime and recovery both observed successfully |
 
 The initial target page showed `UNKNOWN` and `Last scrape: never`. After waiting and refreshing, both targets showed `UP`; no configuration change was needed.
 
@@ -220,6 +224,21 @@ The first recorded test on October 23, 2026 showed the following in the browser'
 These timestamps describe monitor state transitions, not exact container stop/start times or a measured detection delay. Proxmox and Portainer remained successful in the captured view. The lower uptime percentage during this short history included the intentional Grafana outage.
 
 After Gmail configuration, a second controlled Grafana test confirmed both the outage and recovery emails. Exact timestamps for that second test were not recorded. Grafana was restored after testing.
+
+## Social Ring availability and outage validation
+
+A dedicated local HTTP availability check was added for the Social Ring static site on `apps-01`.
+
+| Setting | Verified value |
+|---|---|
+| Host | `apps-01` |
+| URL | `http://<APPS_VM_IP>:8080` |
+| Check type | HTTP GET |
+| Success criteria | Response returned successfully |
+| Recovery validation | Controlled site outage and recovery both observed successfully |
+| Public HTTPS monitor | Not confirmed; suggested but not yet tested |
+
+The check demonstrates that the Nginx service and the published website files are reachable locally on the Apps VM. It does not prove full visual correctness or a complete public access path, because the public HTTPS and root-domain behavior remain pending verification.
 
 ## Operational notes
 

@@ -1,0 +1,17 @@
+# Example only: compare against the live Apps VM before treating as authoritative.
+# This file is an illustrative starter for a static site served by Nginx.
+services:
+  social-ring:
+    image: nginx:stable-alpine
+    container_name: social-ring
+    restart: unless-stopped
+    ports:
+      - "<APPS_VM_IP>:8080:80"
+    volumes:
+      - /srv/social-ring:/usr/share/nginx/html:ro
+    networks:
+      - social-ring-net
+
+networks:
+  social-ring-net:
+    driver: bridge

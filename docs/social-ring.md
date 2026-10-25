@@ -15,14 +15,14 @@ This is a static-site deployment, not a full application stack. Backend builds, 
 
 ```mermaid
 flowchart LR
-    SRC[Public source repository\nhttps://github.com/PattonGroup/Social-Ring-Web] --> GH[Private homelab deployment repo]
-    GH --> RUNNER[Self-hosted GitHub Actions runner\ngithub-runner]
-    RUNNER --> SITE[/srv/social-ring]
-    SITE --> NGINX[Nginx container on apps-01]
-    NGINX --> LOCAL[http://<APPS_VM_IP>:8080]
-    NGINX --> TUNNEL[Cloudflare Tunnel]
-    TUNNEL --> PUB[https://www.social-ring.com\nhttps://lab.social-ring.com]
-    MON[Uptime Kuma] --> LOCAL
+    SRC["Public source repo<br/>PattonGroup/Social-Ring-Web"] --> GH["Private homelab deployment repo"]
+    GH --> RUNNER["Self-hosted GitHub Actions runner<br/>github-runner"]
+    RUNNER --> SITE["/srv/social-ring"]
+    SITE --> NGINX["Nginx container<br/>on apps-01"]
+    NGINX --> LOCAL["http://<APPS_VM_IP>:8080"]
+    NGINX --> TUNNEL["Cloudflare Tunnel"]
+    TUNNEL --> PUB["www.social-ring.com<br/>lab.social-ring.com"]
+    MON["Uptime Kuma"] --> LOCAL
 ```
 
 ## VM and hosting layout

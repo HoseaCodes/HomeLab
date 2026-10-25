@@ -155,10 +155,10 @@ The documentation now covers the current architecture, the initial hardware-vali
 |---|---|---|
 | `docs/hardware-validation.md` | Node #1 hardware baseline, diagnostics, and BIOS-record gaps | Added |
 | `docs/architecture.md` | Current topology, responsibilities, failure domains, and resource allocation | Added |
-| `HomeLab/build-log.md` | Dated setup milestones and validation results | Added |
+| `docs/build-log.md` | Dated setup milestones and validation results | Added |
 | `docs/monitoring.md` | Monitoring setup, service checks, alert validation, and recovery notes | Existing |
-| `HomeLab/equipment-inventory.md` | Deployed, purchased, and planned physical equipment | Added |
-| `HomeLab/documentation-status.md` | Audit of documented, partial, planned, and deferred work | Added |
+| `docs/equipment-inventory.md` | Deployed, purchased, and planned physical equipment | Added |
+| `docs/documentation-status.md` | Audit of documented, partial, planned, and deferred work | Added |
 | `docs/decisions/` | Short records of meaningful technical decisions | Planned |
 | `docs/runbooks/` | Deployment, update, troubleshooting, and recovery procedures | Planned |
 | `docs/incidents/` | Failure observations, causes, fixes, and follow-up work | Planned |

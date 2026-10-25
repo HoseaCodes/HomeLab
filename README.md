@@ -12,10 +12,10 @@ Documentation set:
 
 - [Hardware validation](docs/hardware-validation.md) — Node #1 baseline, Dell diagnostics, and BIOS-record gaps.
 - [Current architecture](docs/architecture.md) — physical, virtual, and monitoring topology.
-- [Build log](HomeLab/build-log.md) — dated milestones and incomplete details.
+- [Build log](docs/build-log.md) — dated milestones and incomplete details.
 - [Monitoring and alerting](docs/monitoring.md) — metrics, availability checks, Gmail notifications, and outage validation.
-- [Equipment inventory](HomeLab/equipment-inventory.md) — in-service, purchased, and planned hardware.
-- [Documentation status](HomeLab/documentation-status.md) — what is documented, partial, planned, or deferred.
+- [Equipment inventory](docs/equipment-inventory.md) — in-service, purchased, and planned hardware.
+- [Documentation status](docs/documentation-status.md) — what is documented, partial, planned, or deferred.
 
 **Last updated:** October 24, 2026
 

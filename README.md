@@ -8,9 +8,16 @@ My goal is to become a stronger backend engineer by owning the full path from so
 
 **Current milestone:** Ubuntu, Docker, and Portainer are running in the first VM. Prometheus and Grafana display guest resource metrics; Uptime Kuma checks Proxmox, Portainer, and Grafana. Gmail outage and recovery notifications have been tested, and the `monitoring-ready` snapshot is saved.
 
-See [Monitoring and alerting](docs/monitoring.md) for configuration, validation, and operating procedures.
+Documentation set:
 
-**Last updated:** October 23, 2026
+- [Hardware validation](docs/hardware-validation.md) — Node #1 baseline, Dell diagnostics, and BIOS-record gaps.
+- [Current architecture](docs/architecture.md) — physical, virtual, and monitoring topology.
+- [Build log](HomeLab/build-log.md) — dated milestones and incomplete details.
+- [Monitoring and alerting](docs/monitoring.md) — metrics, availability checks, Gmail notifications, and outage validation.
+- [Equipment inventory](HomeLab/equipment-inventory.md) — in-service, purchased, and planned hardware.
+- [Documentation status](HomeLab/documentation-status.md) — what is documented, partial, planned, or deferred.
+
+**Last updated:** October 24, 2026
 
 ## Why I am building this
 
@@ -142,20 +149,23 @@ Load and failure experiments will be scoped to lab workloads with clear stop con
 
 ## Repository organization
 
-This documentation set contains `README.md` and `docs/monitoring.md`. The remaining paths below are proposed; their implementations have not been added or verified.
+The documentation now covers the current architecture, the initial hardware-validation/build history, monitoring, equipment status, and explicit documentation gaps. Configuration-as-code and operational runbooks remain future additions.
 
-| Path | Purpose |
-|---|---|
-| `docs/monitoring.md` | Completed monitoring setup, service checks, alert validation, and recovery notes |
-| `docs/architecture.md` | Current topology, responsibilities, and resource allocation |
-| `docs/build-log.md` | Dated setup milestones and validation results |
-| `docs/decisions/` | Short records of meaningful technical decisions |
-| `docs/runbooks/` | Deployment, update, troubleshooting, and recovery procedures |
-| `docs/incidents/` | Failure observations, causes, fixes, and follow-up work |
-| `infra/` | Infrastructure configuration and automation added over time |
-| `services/` | Reviewed Compose manifests and service configuration examples |
-| `monitoring/` | Dashboard definitions, scrape configuration, and alert rules |
-| `apps/` | Backend application code or links to separate application repositories |
+| Path | Purpose | Status |
+|---|---|---|
+| `docs/hardware-validation.md` | Node #1 hardware baseline, diagnostics, and BIOS-record gaps | Added |
+| `docs/architecture.md` | Current topology, responsibilities, failure domains, and resource allocation | Added |
+| `docs/build-log.md` | Dated setup milestones and validation results | Added |
+| `docs/monitoring.md` | Monitoring setup, service checks, alert validation, and recovery notes | Existing |
+| `docs/equipment-inventory.md` | Deployed, purchased, and planned physical equipment | Added |
+| `docs/documentation-status.md` | Audit of documented, partial, planned, and deferred work | Added |
+| `docs/decisions/` | Short records of meaningful technical decisions | Planned |
+| `docs/runbooks/` | Deployment, update, troubleshooting, and recovery procedures | Planned |
+| `docs/incidents/` | Failure observations, causes, fixes, and follow-up work | Planned |
+| `infra/` | Infrastructure configuration and automation added over time | Planned |
+| `services/` | Reviewed Compose manifests and service configuration examples | Planned |
+| `monitoring/` | Dashboard definitions, scrape configuration, and alert rules | Planned |
+| `apps/` | Backend application code or links to separate application repositories | Planned |
 
 ## Documentation standards
 

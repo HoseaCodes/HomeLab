@@ -1,7 +1,8 @@
 # HomeLab Architecture — Current State
 
-**Recorded:** October 25, 2026  
-**Status:** Reflects the verified single-host Proxmox lab, monitoring stack, and the public Social Ring deployment on the dedicated Apps VM.
+**Recorded:** October 29, 2026
+
+**Status:** Reflects the verified single-host Proxmox lab, monitoring stack, the public Social Ring deployment on the dedicated Apps VM, and a separate Mac mini local AI assistant.
 
 This document describes what is running today. Planned equipment and services are separated from deployed components so the architecture does not overstate the current lab.
 
@@ -13,6 +14,7 @@ flowchart TD
     A --> R[TP-Link Archer AX55]
     R --> P[Dell OptiPlex 3070\nProxmox VE: pve01]
     R --> M[Mac\nBrowser + SSH administration]
+    R --> AI["2014 Mac mini: local AI assistant"]
     P --> B[vmbr0 Linux bridge]
     B --> V1[VM 100: docker01\nUbuntu Server 24.04.5 LTS]
     B --> V2[VM 101: apps-01\nUbuntu Server 24.04.5 LTS]
@@ -150,13 +152,27 @@ The schedule depends on `dev01` being powered on and connected to the internet. 
 
 See [Remote Development and S3 Backups](development-backups.md).
 
+## Separate local AI host
+
+The 2014 Mac mini runs macOS Monterey 12.7.6 on Intel x86_64 with 8 GB RAM and an approximately 1 TB HDD. It is a physical host outside Proxmox, with no cluster or high-availability role.
+
+- iPhone Safari accesses the Flask/Waitress frontend over LAN HTTP on port `8082`.
+- The frontend retrieves up to three matching Markdown passages from a local clone of this repository and calls llama.cpp on `127.0.0.1:8081`.
+- Qwen2.5-1.5B-Instruct Q4_K_M runs locally on CPU with a 2,048-token context and two inference threads. No cloud inference API is configured.
+- System LaunchDaemons supervise the model and frontend under the Mac account. A browser request and a fresh document answer worked after reboot without manually starting either process.
+- The assistant has no live service checks, command execution, or infrastructure credentials. Retrieval is lexical search, not model training or a vector database.
+
+See [Local AI assistant](local-ai-assistant.md) for configuration, validation, and operations. The frontend currently has no authentication or TLS; no public exposure or VPN setup is claimed.
+
 ## Current failure domains
 
 The current design intentionally prioritizes learning and low apartment footprint over high availability.
 
-- `pve01` is a single physical host. Host or SSD failure removes the VM and all services.
+- `pve01` is a single physical host. Host or SSD failure removes all VMs and their services. The separate Mac mini remains a distinct compute failure domain.
 - Prometheus, Grafana, Portainer, and Uptime Kuma all depend on `docker01`.
 - Uptime Kuma cannot independently report a total failure of the host it runs on.
+- The AI frontend and model share the Mac mini and its HDD. Neither AI service is yet covered by the existing monitoring stack; no assistant backup/restore test is recorded.
+- The assistant uses a manually refreshed document clone, so answers may lag repository changes and do not establish live infrastructure state.
 - Gmail alerts depend on outbound internet access.
 - No NAS-backed or off-host VM backup has been completed.
 - Development project file restore was reported complete. Full VM and live application recovery have not been tested.

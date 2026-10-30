@@ -12,6 +12,8 @@ My goal is to become a stronger backend engineer by owning the full path from so
 
 See [Remote Development and S3 Backups](docs/development-backups.md).
 
+**Local AI milestone:** A separate 2014 Mac mini now runs a CPU-based Qwen2.5 1.5B model through llama.cpp and a mobile-friendly assistant that retrieves this repository’s Markdown documentation. SSH administration from an iPhone and automatic service startup after reboot were verified. The assistant answers documentation questions; it does not inspect or control live services.
+
 Documentation set:
 
 - [Hardware validation](docs/hardware-validation.md) — Node #1 baseline, Dell diagnostics, and BIOS-record gaps.
@@ -20,10 +22,11 @@ Documentation set:
 - [Monitoring and alerting](docs/monitoring.md) — metrics, availability checks, Gmail notifications, and Social Ring validation.
 - [Social Ring deployment](docs/social-ring.md) — the public static-site deployment guide for the Apps VM.
 - [Remote development and S3 backups](docs/development-backups.md) — the `dev01` workspace, weekly project archives, and restore procedure.
+- [Local AI assistant](docs/local-ai-assistant.md) — Mac mini setup, document retrieval, startup, operations, and limits.
 - [Equipment inventory](docs/equipment-inventory.md) — in-service, purchased, and planned hardware.
 - [Documentation status](docs/documentation-status.md) — what is documented, partial, planned, or deferred.
 
-**Last updated:** October 25, 2026
+**Last updated:** October 29, 2026
 
 ## Why I am building this
 
@@ -43,9 +46,10 @@ The lab must also fit in a one-bedroom apartment, remain affordable to operate, 
 | 500 GB SATA SSD | Host installation, VM disks, and local snapshots |
 | TP-Link Archer AX55 | Lab LAN connectivity and DHCP reservations |
 | AT&T gateway | Upstream internet connection |
-| Mac | Browser administration and SSH client |
+| Administration Mac | Browser administration and SSH client |
+| 2014 Mac mini | Local LLM inference and repository-document assistant |
 
-A 2014 Mac mini is available for future experimentation; it is not yet part of the deployed platform.
+The 2014 Mac mini is a separate deployed AI host: Intel x86_64, 8 GB RAM, approximately 1 TB HDD, and macOS Monterey 12.7.6. It is not a Proxmox cluster node.
 
 ## What is running today
 
@@ -88,6 +92,9 @@ flowchart TD
 | Public app runtime | Nginx serves static content from `/srv/social-ring` |
 | Public access | Cloudflare Tunnel terminates HTTPS at `https://www.social-ring.com` and `https://lab.social-ring.com` |
 | Delivery automation | Private GitHub Actions workflow deploys website updates from the public source repository |
+| Local AI | Qwen2.5-1.5B-Instruct Q4_K_M on the Mac mini through CPU-only llama.cpp |
+| Knowledge assistant | Flask/Waitress retrieves local Markdown passages and displays answers plus sources |
+| AI service startup | Two system LaunchDaemons run as the Mac account; browser access and a fresh answer verified after reboot |
 
 The Docker `hello-world` container completed with exit code `0`. Portainer is running and can list the local containers. The primary public deployment in the current lab is a static Social Ring site served from the dedicated Apps VM, not a backend application with database migrations or Kubernetes.
 
@@ -127,8 +134,12 @@ Snapshots live on the host’s storage and provide rollback points rather than i
 
 Replace `<VM_IP>` with the reserved LAN address of `docker01` and `<PROXMOX_IP>` with the management address of `pve01`. These are templates for local access, not public URLs. Keep actual bookmarks in private notes.
 
+The AI frontend uses `<MAC_MINI_IP>`, the Mac mini’s LAN address. Its model API is loopback-only.
+
 | Service | Local URL template | Purpose |
 |---|---|---|
+| Homelab Assistant | `http://<MAC_MINI_IP>:8082/` | Local document Q&A; unauthenticated LAN HTTP |
+| Local model health | `http://127.0.0.1:8081/health` | Run on the Mac mini itself |
 | Social Ring | `http://<APPS_VM_IP>:8080` | Local HTTP availability check for the public static site |
 | Uptime Kuma | `http://<VM_IP>:3001/dashboard` | Availability, response times, and outage history |
 | Grafana | `http://<VM_IP>:3000/dashboards` | Guest resource dashboards |
@@ -153,6 +164,7 @@ The table separates completed work from planned expansion. Resource allocations 
 | 7 — Distributed systems | Messaging and asynchronous processing; evaluate Kafka | A documented event flow demonstrating retries, duplicate handling, and failure recovery. |
 | 8 — Recovery and access | Independent backups, restore drills, private remote access, secrets management | Backups and restore testing deferred until NAS acquisition. Remaining access work is planned. |
 | 9 — Personal services | Selected media, file-transfer, backup, and website workloads | A service with storage, access, monitoring, and recovery requirements documented before regular use. |
+| 10 — Local AI knowledge assistant | Reuse the Mac mini for local inference and repository retrieval | **Initial document Q&A and reboot startup verified.** Authentication, monitoring, backups, and answer-quality evaluation remain open. |
 
 Initial guest monitoring and service alerts are running. A longer baseline will help evaluate later workloads. Server resource monitoring and whole-home internet monitoring are separate concerns: bandwidth, latency, and router visibility will need their own measurements.
 
@@ -174,7 +186,7 @@ Load and failure experiments will be scoped to lab workloads with clear stop con
 
 ## Repository organization
 
-The documentation now covers the current architecture, the initial hardware-validation/build history, monitoring, equipment status, and explicit documentation gaps. Configuration-as-code and operational runbooks remain future additions.
+The documentation now covers the current architecture, the initial hardware-validation/build history, monitoring, equipment status, and explicit documentation gaps. The local AI guide includes an operations runbook and version-controlled assistant source; broader infrastructure declarations remain planned.
 
 | Path | Purpose | Status |
 |---|---|---|
@@ -184,13 +196,15 @@ The documentation now covers the current architecture, the initial hardware-vali
 | `docs/monitoring.md` | Monitoring setup, service checks, alert validation, and recovery notes | Existing |
 | `docs/social-ring.md` | Detailed Social Ring deployment, delivery automation, operations, and limits | Added |
 | `docs/development-backups.md` | Remote development VM, S3 project backups, and restore procedure | Added |
+| `docs/local-ai-assistant.md` | Local LLM deployment, retrieval design, validation, and operations | Added |
+| `services/local-ai/` | Assistant source, dependency versions, and launchd configuration generator | Added |
 | `docs/equipment-inventory.md` | Deployed, purchased, and planned physical equipment | Added |
 | `docs/documentation-status.md` | Audit of documented, partial, planned, and deferred work | Added |
 | `docs/decisions/` | Short records of meaningful technical decisions | Planned |
 | `docs/runbooks/` | Deployment, update, troubleshooting, and recovery procedures | Planned |
 | `docs/incidents/` | Failure observations, causes, fixes, and follow-up work | Planned |
 | `infra/` | Infrastructure configuration and automation added over time | Planned |
-| `services/` | Reviewed Compose manifests and service configuration examples | Planned |
+| `services/` | Service source and sanitized configuration examples | Initial examples present |
 | `services/social-ring/` | Sanitized Nginx and Compose examples for the public static site | Added as examples pending live comparison |
 | `monitoring/` | Dashboard definitions, scrape configuration, and alert rules | Planned |
 | `apps/` | Backend application code or links to separate application repositories | Planned |

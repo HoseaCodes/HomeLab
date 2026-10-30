@@ -1,0 +1,5 @@
+# Versions observed in the working Mac mini environment on October 29, 2026.
+# Transitive dependencies and the build toolchain are not fully locked.
+Flask==3.1.3
+waitress==3.0.2
+requests==2.34.0

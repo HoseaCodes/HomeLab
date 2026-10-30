@@ -1,6 +1,6 @@
 # HomeLab Equipment Inventory
 
-**Last updated:** October 24, 2026
+**Last updated:** October 29, 2026
 
 This inventory distinguishes equipment that is actively part of the running lab from equipment that has been purchased but is not yet verified/integrated, and from future purchases.
 
@@ -14,7 +14,9 @@ This inventory distinguishes equipment that is actively part of the running lab 
 | Crucial MX500 500 GB SATA SSD | Proxmox, VM disks, local snapshots | Running |
 | TP-Link Archer AX55 | Current lab LAN and DHCP reservations | Running |
 | AT&T gateway | Upstream internet connection | Running |
-| Mac | Proxmox/Portainer/Grafana browser administration and SSH client | In use |
+| Administration Mac | Proxmox/Portainer/Grafana browser administration and SSH client | In use |
+| 2014 Mac mini | Local Qwen model and repository-document assistant | Running; Intel x86_64, 8 GB RAM, approximately 1 TB HDD, macOS Monterey 12.7.6; automatic startup verified after reboot |
+| iPhone | Termius SSH administration and Safari assistant access | LAN access verified |
 
 ## Purchased for the lab / integration status
 
@@ -26,11 +28,7 @@ This inventory distinguishes equipment that is actively part of the running lab 
 
 The rack-mount compatibility question should be resolved using the exact rack width and the exact Dell chassis dimensions before treating the mount as usable.
 
-## Available but not currently part of the deployed platform
-
-| Item | Possible use | Status |
-|---|---|---|
-| 2014 Mac mini | Future experimentation/AI or utility services | Not part of current HomeLab architecture |
+The Mac mini runs independently of the Dell/Proxmox platform. Its exact Intel CPU model, rack mounting, DHCP reservation, and power-loss restart behavior remain unverified. See [Local AI assistant](local-ai-assistant.md).
 
 ## Planned / not verified as acquired
 

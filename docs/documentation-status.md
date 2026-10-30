@@ -1,6 +1,6 @@
 # HomeLab Documentation Status
 
-**Last audited:** October 25, 2026
+**Last audited:** October 29, 2026
 
 This file answers two questions: **what is actually documented now, and what still needs documentation or implementation?** It should be updated whenever a milestone is completed.
 
@@ -41,12 +41,16 @@ This file answers two questions: **what is actually documented now, and what sti
 | Additional Proxmox nodes | Not deployed | **Planning only** | Current lab is single-host |
 | Dedicated firewall/VPN | Not deployed | **Planning only** | OPNsense/pfSense/VPN concepts discussed, no deployment claimed |
 | Personal media/file services | Not deployed | **Idea/roadmap only** | Requirements should be documented before regular use |
-| Mac mini AI node | Not deployed into platform | **Idea only** | Available for experimentation; not part of current architecture |
+| Mac mini AI node | Initial deployment verified | **Documented** | `local-ai-assistant.md`: local model, repository retrieval, iPhone access, and reboot startup |
+| AI knowledge refresh | Manual pull only | **Documented** | Local Markdown clone is reread for each question; no automatic sync |
+| AI live checks / control | Not implemented | **Explicit limit** | Assistant answers from documents and cannot inspect or operate services |
+| AI access and recovery | LAN HTTP only; no app authentication or backup test | **Open work** | Monitoring, secure remote access, recovery, and broader quality tests remain pending |
 
 ## Documentation files now present
 
 - `README.md` — project purpose, current state, roadmap, standards, and success criteria.
 - `monitoring.md` — detailed metrics, service availability, Gmail alerting, outage test, and Social Ring monitoring notes.
+- `local-ai-assistant.md` — verified local model deployment, retrieval, startup, operations, and limits; source in `services/local-ai/`.
 - `social-ring.md` — the public app deployment guide, automation flow, operations, and remaining risks.
 - `development-backups.md` — the `dev01` remote development workspace, weekly S3 project backups, and restore procedure.
 - `hardware-validation.md` — pre-Proxmox hardware inspection, diagnostics, keyboard/firmware lessons, and BIOS-record gaps.
@@ -66,9 +70,11 @@ These are documentation gaps even though some underlying functionality already w
 5. Record exact Docker image versions/digests instead of moving `latest`/major tags.
 6. Convert the manually created Docker services into reviewed Compose manifests or another version-controlled declaration.
 7. Record a normal 24-hour/7-day monitoring baseline before drawing capacity conclusions.
+8. Record the Mac mini’s exact CPU, model file checksum, and complete dependency/build versions; test assistant answer quality beyond the initial examples.
 
 ## Implementation gaps that must not be described as complete
 
+- AI authentication/TLS, automated knowledge sync, live service integration, and assistant backup/restore testing
 - Full VM and live application backups and restore testing
 - NAS storage
 - Managed switch/VLAN deployment

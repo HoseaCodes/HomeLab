@@ -1,6 +1,6 @@
 # HomeLab Build Log
 
-**Last updated:** October 24, 2026
+**Last updated:** October 29, 2026
 
 This log separates verified milestones from plans. A check mark means the work was observed or later confirmed in the project documentation; an open item means the detail is still missing or the work remains planned.
 
@@ -117,6 +117,28 @@ See `social-ring.md` for the detailed deployment and operations guide.
 - [ ] Implement full VM and live application data backups.
 
 See [Remote Development and S3 Backups](development-backups.md).
+
+## October 29, 2026 — Local AI assistant on the Mac mini
+
+- [x] Reused the 2014 Intel Mac mini with 8 GB RAM, approximately 1 TB HDD, and macOS Monterey 12.7.6.
+- [x] Enabled Remote Login and verified iPhone SSH access through Termius.
+- [x] Disabled system sleep with `sudo pmset -a sleep 0`; display sleep remained at 10 minutes.
+- [x] Confirmed Python 3.14.10 from python.org alongside system Python 3.9.6; created a dedicated virtual environment.
+- [x] Built llama.cpp with Apple Clang 14.0.0 for CPU use; recorded commit `3c809f4` and successful server/CLI builds.
+- [x] Downloaded official Qwen2.5-1.5B-Instruct Q4_K_M GGUF and verified local generation in a browser.
+- [x] Cloned the HomeLab repository into `~/homelab-assistant/knowledge`.
+- [x] Ran a Flask/Waitress assistant that retrieves Markdown passages and queries the local model.
+- [x] Verified the document answer identifying the Dell OptiPlex 3070, i5-9500, six cores, and 16 GB RAM; displayed retrieved passages for review.
+- [x] Installed model and assistant system LaunchDaemons that run under the Mac account.
+- [x] Verified model health returned `{"status":"ok"}` and the frontend returned HTTP `200`.
+- [x] Rebooted and confirmed the frontend and a fresh Social Ring document answer worked without manually starting services.
+- [ ] Physical operation with the monitor disconnected was not separately recorded.
+- [ ] Power-loss recovery, Mac DHCP reservation, AI monitoring, backups, and restore testing were not verified.
+- [ ] Authentication, TLS, and private off-LAN access are not implemented for the assistant.
+
+A short browser reply reported 14.83 generated tokens/second; this is one observed run, not a sustained benchmark. A Downloads copy over SSH returned `Operation not permitted`; the file was copied using Finder instead. FileVault was observed off, not changed as part of this setup.
+
+See [Local AI assistant](local-ai-assistant.md) for the deployment record and runbook.
 
 ## Current deferred work
 

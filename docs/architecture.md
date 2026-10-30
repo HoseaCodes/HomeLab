@@ -136,6 +136,20 @@ This is a static site workflow, not a backend service with database migrations o
 
 These are local snapshots on the same physical storage. They are rollback points, not independent backups.
 
+## Development VM and off-site project backup
+
+VM `102 (dev01)` provides a dedicated Ubuntu development workspace. VS Code runs on the Mac and connects through Remote SSH; repositories and development tools live under `/home/dominique/projects`.
+
+The VM uses 2 virtual cores, an 80 GB virtual disk, and VirtIO networking through `vmbr0`. Its memory target is 4 GiB; final RAM allocation, root filesystem capacity, and DHCP reservation still need verification.
+
+The Social Ring working copy is separate from the deployment runner checkout and production website files on `apps-01`.
+
+Weekly project archives upload to private S3 storage independently of the Dell’s disk. Every `node_modules` directory is excluded and the archive listing is checked before upload. Archives expire after 35 days.
+
+The schedule depends on `dev01` being powered on and connected to the internet. Failures are logged without notifications. Full VM and live application data recovery remain separate work.
+
+See [Remote Development and S3 Backups](development-backups.md).
+
 ## Current failure domains
 
 The current design intentionally prioritizes learning and low apartment footprint over high availability.
@@ -145,7 +159,7 @@ The current design intentionally prioritizes learning and low apartment footprin
 - Uptime Kuma cannot independently report a total failure of the host it runs on.
 - Gmail alerts depend on outbound internet access.
 - No NAS-backed or off-host VM backup has been completed.
-- No restore drill has been completed.
+- Development project file restore was reported complete. Full VM and live application recovery have not been tested.
 
 ## Public deployment notes and remaining uncertainty
 

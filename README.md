@@ -8,6 +8,10 @@ My goal is to become a stronger backend engineer by owning the full path from so
 
 **Current milestone:** Social Ring is publicly hosted from a dedicated Ubuntu Apps VM on the Dell Proxmox host. Nginx serves the static website through Cloudflare Tunnel with HTTPS. Pushes to the source repository trigger a private GitHub Actions deployment workflow, and Portainer manages the Apps VM’s containers. Local availability monitoring and outage/recovery detection have been verified.
 
+**Remote development milestone:** VM `102 (dev01)` now hosts working repositories accessed through VS Code Remote SSH from the Mac. Weekly project backups upload to private AWS S3, exclude every `node_modules` directory, and expire after 35 days. Manual upload and file restore were reported complete; the first scheduled Sunday run remains pending verification.
+
+See [Remote Development and S3 Backups](docs/development-backups.md).
+
 Documentation set:
 
 - [Hardware validation](docs/hardware-validation.md) — Node #1 baseline, Dell diagnostics, and BIOS-record gaps.
@@ -15,6 +19,7 @@ Documentation set:
 - [Build log](docs/build-log.md) — dated milestones and incomplete details.
 - [Monitoring and alerting](docs/monitoring.md) — metrics, availability checks, Gmail notifications, and Social Ring validation.
 - [Social Ring deployment](docs/social-ring.md) — the public static-site deployment guide for the Apps VM.
+- [Remote development and S3 backups](docs/development-backups.md) — the `dev01` workspace, weekly project archives, and restore procedure.
 - [Equipment inventory](docs/equipment-inventory.md) — in-service, purchased, and planned hardware.
 - [Documentation status](docs/documentation-status.md) — what is documented, partial, planned, or deferred.
 
@@ -116,7 +121,7 @@ The Docker `hello-world` container completed with exit code `0`. Portainer is ru
 - [x] Confirm the private deployment workflow publishes the static website and the Cloudflare Tunnel serves the site over HTTPS.
 - [x] Save the pre-deploy snapshot before the GitHub-driven change set was applied.
 
-Snapshots currently live on the host's storage. They provide rollback points, but they are not independent backups and do not protect against host disk failure. Independent VM backups and restore testing are **deferred until a NAS is available**; neither has been completed.
+Snapshots live on the host’s storage and provide rollback points rather than independent backups. Development project files now have off-site S3 backups and a user-reported file restore test. Full VM backups and VM restore testing remain deferred. Project archives do not capture live application databases, uploads outside the project directory, or Docker volumes.
 
 ## Service access
 
@@ -178,6 +183,7 @@ The documentation now covers the current architecture, the initial hardware-vali
 | `docs/build-log.md` | Dated setup milestones and validation results | Added |
 | `docs/monitoring.md` | Monitoring setup, service checks, alert validation, and recovery notes | Existing |
 | `docs/social-ring.md` | Detailed Social Ring deployment, delivery automation, operations, and limits | Added |
+| `docs/development-backups.md` | Remote development VM, S3 project backups, and restore procedure | Added |
 | `docs/equipment-inventory.md` | Deployed, purchased, and planned physical equipment | Added |
 | `docs/documentation-status.md` | Audit of documented, partial, planned, and deferred work | Added |
 | `docs/decisions/` | Short records of meaningful technical decisions | Planned |

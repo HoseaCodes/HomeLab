@@ -1,6 +1,6 @@
 # HomeLab Documentation Status
 
-**Last audited:** October 24, 2026
+**Last audited:** October 25, 2026
 
 This file answers two questions: **what is actually documented now, and what still needs documentation or implementation?** It should be updated whenever a milestone is completed.
 
@@ -24,8 +24,11 @@ This file answers two questions: **what is actually documented now, and what sti
 | Public static hosting | Complete | **Documented** | Nginx on `apps-01` serves `/srv/social-ring` through Cloudflare Tunnel |
 | GitHub delivery automation | Complete | **Documented** | Public source repo triggers private workflow; runner updates website files without sudo or Docker access |
 | Local recovery snapshots | Complete | **Documented** | `ubuntu-base`, `docker-portainer-ready`, `monitoring-ready`, and the pre-deploy apps snapshot |
-| Independent VM backup | Not complete | **Documented as deferred** | Waiting for suitable backup storage/NAS |
-| Restore drill | Not complete | **Documented as deferred** | Must restore into isolated environment before claiming recoverability |
+| Development workspace | Operational; operator confirmed | **Documented** | VM 102, Remote SSH, Social Ring working copy |
+| Off-site project backups | Manual test completed | **Documented** | Weekly S3 archives with dependency-directory exclusions |
+| Project file restore | Operator reported complete | **Documented** | Isolated extraction, exclusion check, and source comparison |
+| Weekly scheduled execution | Configured; first run pending | **Documented** | Sunday 03:00 America/Chicago |
+| Full VM and live application recovery | Not complete | **Deferred** | Separate backup and restore procedures required |
 | Physical host metrics | Not complete | **Documented as planned** | Monitoring currently describes `docker01`, not total Dell host resources |
 | Independent outage observer | Not complete | **Documented as planned** | Current Kuma instance shares the host failure domain |
 | Backend application | Not deployed | **Roadmap only** | Java/Spring Boot API + PostgreSQL; Redis only where justified |
@@ -45,6 +48,7 @@ This file answers two questions: **what is actually documented now, and what sti
 - `README.md` — project purpose, current state, roadmap, standards, and success criteria.
 - `monitoring.md` — detailed metrics, service availability, Gmail alerting, outage test, and Social Ring monitoring notes.
 - `social-ring.md` — the public app deployment guide, automation flow, operations, and remaining risks.
+- `development-backups.md` — the `dev01` remote development workspace, weekly S3 project backups, and restore procedure.
 - `hardware-validation.md` — pre-Proxmox hardware inspection, diagnostics, keyboard/firmware lessons, and BIOS-record gaps.
 - `architecture.md` — current physical, virtual, public app flow, and monitoring topology with failure-domain boundaries.
 - `build-log.md` — dated milestone history separating complete work from missing details.
@@ -65,8 +69,7 @@ These are documentation gaps even though some underlying functionality already w
 
 ## Implementation gaps that must not be described as complete
 
-- Independent backups
-- Restore testing
+- Full VM and live application backups and restore testing
 - NAS storage
 - Managed switch/VLAN deployment
 - UPS integration and graceful shutdown

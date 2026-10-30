@@ -97,6 +97,27 @@ See `monitoring.md` for the detailed monitoring configuration and validation not
 
 See `social-ring.md` for the detailed deployment and operations guide.
 
+## October 25, 2026 — Remote development and S3 backups
+
+- [x] Installed Ubuntu Server on VM `102 (dev01)`.
+- [x] Connected VS Code on the Mac through Remote SSH.
+- [x] Cloned `PattonGroup/Social-Ring-Web` into `~/projects`.
+- [x] Reported successful static-site preview.
+- [x] Created private S3 backup storage in `us-east-1`.
+- [x] Configured restricted backup IAM permissions.
+- [x] Configured 35-day archive retention and 7-day incomplete multipart cleanup.
+- [x] Uploaded the initial project archive; confirmed by S3 listing.
+- [x] Reported completing an isolated file restore and exclusion check.
+- [x] Reported completing a manual logged backup test.
+- [x] Reported installing the Sunday 03:00 America/Chicago cron entry.
+- [x] Confirmed the cron service is active.
+- [ ] Verify the first unattended scheduled backup.
+- [ ] Verify final VM RAM, root filesystem size, and DHCP reservation.
+- [ ] Add backup failure notifications.
+- [ ] Implement full VM and live application data backups.
+
+See [Remote Development and S3 Backups](development-backups.md).
+
 ## Current deferred work
 
 - [ ] Deploy first backend application and database workload.

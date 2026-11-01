@@ -1,6 +1,6 @@
 # HomeLab Architecture — Current State
 
-**Recorded:** October 29, 2026
+**Recorded:** October 31, 2026
 
 **Status:** Reflects the verified single-host Proxmox lab, monitoring stack, the public Social Ring deployment on the dedicated Apps VM, and a separate Mac mini local AI assistant.
 
@@ -161,6 +161,7 @@ The 2014 Mac mini runs macOS Monterey 12.7.6 on Intel x86_64 with 8 GB RAM and a
 - Qwen2.5-1.5B-Instruct Q4_K_M runs locally on CPU with a 2,048-token context and two inference threads. No cloud inference API is configured.
 - System LaunchDaemons supervise the model and frontend under the Mac account. A browser request and a fresh document answer worked after reboot without manually starting either process.
 - The assistant has no live service checks, command execution, or infrastructure credentials. Retrieval is lexical search, not model training or a vector database.
+- A router DHCP reservation was reported configured on October 31. It applies to one interface’s MAC address, so Wi-Fi and Ethernet need separate reservations; SSH and the assistant address must be retested after the planned relocation.
 
 See [Local AI assistant](local-ai-assistant.md) for configuration, validation, and operations. The frontend currently has no authentication or TLS; no public exposure or VPN setup is claimed.
 

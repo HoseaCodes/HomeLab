@@ -12,7 +12,7 @@ My goal is to become a stronger backend engineer by owning the full path from so
 
 See [Remote Development and S3 Backups](docs/development-backups.md).
 
-**Local AI milestone:** A separate 2014 Mac mini now runs a CPU-based Qwen2.5 1.5B model through llama.cpp and a mobile-friendly assistant that retrieves this repository’s Markdown documentation. SSH administration from an iPhone and automatic service startup after reboot were verified. The assistant answers documentation questions; it does not inspect or control live services.
+**Local AI milestone:** A separate 2014 Mac mini now runs a CPU-based Qwen2.5 1.5B model through llama.cpp and a mobile-friendly assistant that retrieves this repository’s Markdown documentation. SSH administration from an iPhone and automatic service startup after reboot were verified. The assistant answers documentation questions; it does not inspect or control live services. Pre-move checks passed on October 31 with a DHCP reservation reported configured; the Mac mini is being relocated, and post-move verification is pending.
 
 Documentation set:
 
@@ -26,7 +26,7 @@ Documentation set:
 - [Equipment inventory](docs/equipment-inventory.md) — in-service, purchased, and planned hardware.
 - [Documentation status](docs/documentation-status.md) — what is documented, partial, planned, or deferred.
 
-**Last updated:** October 29, 2026
+**Last updated:** October 31, 2026
 
 ## Why I am building this
 

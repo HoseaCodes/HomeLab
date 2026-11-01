@@ -1,6 +1,6 @@
 # HomeLab Documentation Status
 
-**Last audited:** October 29, 2026
+**Last audited:** October 31, 2026
 
 This file answers two questions: **what is actually documented now, and what still needs documentation or implementation?** It should be updated whenever a milestone is completed.
 
@@ -44,6 +44,7 @@ This file answers two questions: **what is actually documented now, and what sti
 | Mac mini AI node | Initial deployment verified | **Documented** | `local-ai-assistant.md`: local model, repository retrieval, iPhone access, and reboot startup |
 | AI knowledge refresh | Manual pull only | **Documented** | Local Markdown clone is reread for each question; no automatic sync |
 | AI live checks / control | Not implemented | **Explicit limit** | Assistant answers from documents and cannot inspect or operate services |
+| Mac mini relocation | Pre-move checks passed Oct 31; DHCP reservation reported configured | **Documented** | Post-move cold boot, SSH, service, and end-to-end assistant checks pending |
 | AI access and recovery | LAN HTTP only; no app authentication or backup test | **Open work** | Monitoring, secure remote access, recovery, and broader quality tests remain pending |
 
 ## Documentation files now present

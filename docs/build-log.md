@@ -1,6 +1,6 @@
 # HomeLab Build Log
 
-**Last updated:** October 29, 2026
+**Last updated:** October 31, 2026
 
 This log separates verified milestones from plans. A check mark means the work was observed or later confirmed in the project documentation; an open item means the detail is still missing or the work remains planned.
 
@@ -133,12 +133,26 @@ See [Remote Development and S3 Backups](development-backups.md).
 - [x] Verified model health returned `{"status":"ok"}` and the frontend returned HTTP `200`.
 - [x] Rebooted and confirmed the frontend and a fresh Social Ring document answer worked without manually starting services.
 - [ ] Physical operation with the monitor disconnected was not separately recorded.
-- [ ] Power-loss recovery, Mac DHCP reservation, AI monitoring, backups, and restore testing were not verified.
+- [ ] Power-loss recovery, AI monitoring, backups, and restore testing were not verified. (The DHCP reservation was reported configured on October 31.)
 - [ ] Authentication, TLS, and private off-LAN access are not implemented for the assistant.
 
 A short browser reply reported 14.83 generated tokens/second; this is one observed run, not a sustained benchmark. A Downloads copy over SSH returned `Operation not permitted`; the file was copied using Finder instead. FileVault was observed off, not changed as part of this setup.
 
 See [Local AI assistant](local-ai-assistant.md) for the deployment record and runbook.
+
+## October 31, 2026 — Mac mini pre-relocation verification
+
+- [x] Confirmed Remote Login enabled and an active iPhone SSH session.
+- [x] Confirmed the runtime is llama.cpp (`llama-server` under `~/homelab-assistant/llama.cpp`), not Ollama.
+- [x] Confirmed model health at `http://127.0.0.1:8081/health`.
+- [x] Confirmed both `com.hosea.homelab.model` and `com.hosea.homelab.assistant` running with `sudo launchctl list | grep com.hosea`.
+- [x] Identified the active network interface after `en0` returned no address.
+- [x] DHCP reservation reported configured and network check reported working.
+- [ ] After relocation and a cold boot, confirm SSH, both LaunchDaemons, model health, and an end-to-end assistant answer.
+- [ ] Confirm the DHCP reservation matches the interface in use after the move.
+- [ ] Verify the new physical location, ventilation, and fit.
+
+Relocation is not complete until the post-move checks pass.
 
 ## Current deferred work
 

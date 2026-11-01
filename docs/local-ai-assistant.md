@@ -2,6 +2,8 @@
 
 **Deployment verified:** October 29, 2026
 
+**Last checked:** October 31, 2026 — pre-relocation checks passed; post-move verification pending.
+
 **Scope:** Local inference and questions about repository documents. No live service checks or infrastructure control.
 
 ## Purpose and verified behavior
@@ -27,7 +29,7 @@ The model generates answers locally. Flask and Waitress provide the web interfac
 | Supervision | System LaunchDaemons; processes run as the Mac account |
 | Knowledge | Local Markdown clone of `HoseaCodes/HomeLab`; manual refresh |
 
-Public examples use placeholders for the private LAN address and account. The app has no authentication or TLS. LAN access was verified; public exposure and off-LAN access were not configured. Treat access as suitable only for the intended trusted home network. Do not publish port `8082` through the existing public website tunnel.
+Public examples use placeholders for the private LAN address and account. The app has no authentication or TLS. LAN access was verified; public exposure and off-LAN access were not configured. Treat access as suitable only for the intended trusted home network. Do not publish port `8082` through the existing public website tunnel, and keep the model on loopback: never forward port `8081` off the Mac. Remote clients use the assistant frontend or an SSH tunnel.
 
 ## Request flow and retrieval
 
@@ -126,7 +128,9 @@ Already loaded jobs should be inspected/restarted using the operations commands 
 
 System sleep was disabled with `sudo pmset -a sleep 0`; `pmset -g custom` confirmed `sleep 0` and `displaysleep 10`. After reboot, the frontend and a fresh model answer worked without manually starting either process. This verifies automatic startup; a separate monitor-unplug test was not recorded.
 
-FileVault was observed off, not disabled by this setup. Cold boot with FileVault enabled, automatic restart after power loss, UPS integration, and the Mac mini’s DHCP reservation were not tested or configured as part of this milestone. The captured power settings showed `autorestart 0`.
+FileVault was observed off, not disabled by this setup. Cold boot with FileVault enabled, automatic restart after power loss, and UPS integration were not tested or configured as part of this milestone. The captured power settings showed `autorestart 0`.
+
+A router DHCP reservation for the Mac mini was reported configured on October 31, 2026. A reservation is tied to one interface’s MAC address: Wi-Fi and Ethernet differ, so a reservation for one does not cover the other. During the October 31 check, `en0` returned no address and a different interface was active. Recheck the active interface and assigned address after any cabling or location change.
 
 ## Operations runbook
 
@@ -137,6 +141,7 @@ All terminal commands here run **on the Mac mini**—either in its local Termina
 ```bash
 curl --max-time 10 http://127.0.0.1:8081/health
 curl --max-time 10 -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8082/
+sudo launchctl list | grep com.hosea
 sudo launchctl print system/com.hosea.homelab.model
 sudo launchctl print system/com.hosea.homelab.assistant
 ```
@@ -162,6 +167,18 @@ sudo launchctl kickstart -k system/com.hosea.homelab.assistant
 
 Logs also include `model.out.log` and `assistant.out.log`. Log rotation has not been configured. A model restart interrupts an active request and requires loading time. For app updates, retain a copy of the working `assistant.py`, review/copy the replacement, restart only the assistant, and repeat a document-answer check. Rollback is restoring that saved file and restarting; a formal rollback drill has not been recorded.
 
+### Relocate the Mac mini
+
+1. Confirm no inference requests or SSH work are in progress.
+2. Run the health and access checks above and note the results.
+3. Confirm the DHCP reservation matches the interface (Wi-Fi or Ethernet) that will be used after the move.
+4. Shut down cleanly with `sudo shutdown -h now` and wait until the Mac is fully off.
+5. Disconnect, relocate, reconnect to the same LAN, and press the power button.
+6. Reconnect over SSH and rerun the health and access checks.
+7. Open `http://<MAC_MINI_IP>:8082/` and ask a documentation question. A healthy model endpoint does not prove the frontend is reachable.
+
+Do not mark a relocation complete until step 7 passes after the cold boot. Confirm ventilation and physical fit at the new location before recording it in the equipment inventory.
+
 ### Common issues
 
 | Symptom | Check or action |
@@ -172,6 +189,9 @@ Logs also include `model.out.log` and `assistant.out.log`. Log rotation has not 
 | Model says a service is running | Check the cited document and actual monitoring separately; the assistant cannot verify live state. |
 | Missing facts or wrong passages | Check the local clone is current; name the exact service/component. Small passage windows and the small model can omit information. |
 | Works locally but not on the iPhone | Confirm the Mac is awake, both devices are on the intended LAN, and the current Mac address is used; check host/router access controls. |
+| SSH fails after a move or cabling change | Confirm the Mac is powered on, the intended interface is connected, and the DHCP reservation matches that interface. Use a local monitor and keyboard if needed. |
+| A service is absent after boot | Inspect `/Library/LaunchDaemons/com.hosea.homelab.model.plist` and `com.hosea.homelab.assistant.plist` for `RunAtLoad`, `KeepAlive`, working directory, permissions, and log paths before changing anything. |
+| Tempted to install Ollama as a fix | Don’t. This deployment uses llama.cpp; troubleshoot the existing jobs and logs instead. |
 
 ## Validation and remaining work
 
@@ -185,6 +205,8 @@ Evidence is from the setup session and user-provided terminal/browser results, n
 | Repository Q&A | Correctly identified Dell OptiPlex 3070, i5-9500, six cores, and 16 GB RAM; retrieved passages displayed |
 | Reboot startup | Frontend and a fresh Social Ring question worked without manual service startup |
 | Social Ring answer | Identified the dedicated Ubuntu Apps VM on the Dell Proxmox host; answer was brief and did not describe the full deployment flow |
+| Pre-relocation check (Oct 31) | iPhone SSH session active; model `/health` healthy; both `com.hosea` jobs listed with running PIDs. Running PIDs alone do not prove reboot persistence; that was verified separately on Oct 29 |
+| Post-relocation check | **Pending:** cold boot, SSH, both jobs, model health, and an end-to-end assistant answer |
 
 Open work: broader grounded-answer evaluation, authentication/TLS if access expands, private remote access, Mac/AI availability monitoring, log rotation, dependency/build pinning and model checksums, backup/restore testing, and power-loss recovery. The current assistant is not an independent outage observer. Monitoring and command execution would be separate future integrations.
 

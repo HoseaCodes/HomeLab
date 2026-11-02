@@ -114,7 +114,9 @@ I do NOT want to expose an insecure FTP server directly to the public internet e
 
 Start locally.
 
-Important setup note: the current Ubuntu server is the primary server-side environment for this lab. The laptop may act as the client when available, but localhost exercises are still a valid early step for learning sockets, bind behavior, and service listeners before we introduce a true remote client/server split.
+Important setup note: the current Ubuntu server is the primary server-side environment for this lab. The MacBook may act as the client when available, but localhost exercises are still a valid early step for learning sockets, bind behavior, and service listeners before we introduce a true remote client/server split.
+
+The clearest mental model is: the Ubuntu server hosts the service, the client connects to it, and localhost is a simplified local approximation for the first socket/process observations. We should keep the real server/client split as the foundation of the lab, while using localhost only as a teaching aid before the full network path is introduced.
 
 ## Phase 0 — Environment Inspection (2026-08-07)
 

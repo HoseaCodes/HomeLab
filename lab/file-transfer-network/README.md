@@ -6,7 +6,15 @@ This learning module is focused on practical file transfer and network access pa
 
 The goal is to understand how files move between machines, how transport choices affect reliability and security, and how to validate a setup using real commands and small experiments.
 
-This lab is intentionally server-first: the Ubuntu server is the primary environment for learning SSH/SFTP, process binding, ports, users, and permissions. The laptop can act as the client when available, but localhost exercises remain valid for the initial socket and service-learning phases before a true remote client/server split is introduced.
+This lab is intentionally server-first: the Ubuntu server is the primary environment for learning SSH/SFTP, process binding, ports, users, and permissions. The MacBook can act as the client when available, but localhost exercises remain valid for the initial socket and service-learning phases before a true remote client/server split is introduced.
+
+## Setup model
+
+- Server environment: Ubuntu server running locally
+- Client environment: laptop or other machine connecting over the LAN
+- Localhost mode: useful only for early socket and listener concepts before the real client/server model is introduced
+
+This gives the clearest mental model for real backend and infrastructure work: the process listens on a port, the client connects to that port, and the application protocol then handles the transfer.
 
 ## Learning goals
 

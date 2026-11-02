@@ -4,6 +4,8 @@
 
 This repository documents my home lab as it grows from a single Proxmox host into an environment for application deployment, observability, automation, networking, and recovery practice.
 
+Public notes are kept intentionally concise and sanitized, with the emphasis on the current state, key decisions, and recovery path rather than operational secrets.
+
 My goal is to become a stronger backend engineer by owning the full path from source code to a running service: the infrastructure, network, deployment process, data, monitoring, and operational decisions behind it.
 
 **Current milestone:** Social Ring is publicly hosted from a dedicated Ubuntu Apps VM on the Dell Proxmox host. Nginx serves the static website through Cloudflare Tunnel with HTTPS. Pushes to the source repository trigger a private GitHub Actions deployment workflow, and Portainer manages the Apps VM’s containers. Local availability monitoring and outage/recovery detection have been verified.
@@ -26,7 +28,7 @@ Documentation set:
 - [Equipment inventory](docs/equipment-inventory.md) — in-service, purchased, and planned hardware.
 - [Documentation status](docs/documentation-status.md) — what is documented, partial, planned, or deferred.
 
-**Last updated:** October 31, 2026
+**Last updated:** November 1, 2026
 
 ## Why I am building this
 

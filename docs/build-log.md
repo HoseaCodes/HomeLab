@@ -1,6 +1,6 @@
 # HomeLab Build Log
 
-**Last updated:** October 31, 2026
+**Last updated:** November 15, 2026
 
 This log separates verified milestones from plans. A check mark means the work was observed or later confirmed in the project documentation; an open item means the detail is still missing or the work remains planned.
 
@@ -153,6 +153,44 @@ See [Local AI assistant](local-ai-assistant.md) for the deployment record and ru
 - [ ] Verify the new physical location, ventilation, and fit.
 
 Relocation is not complete until the post-move checks pass.
+
+## November 15, 2026 — Family Rotation deployment on the Apps VM
+
+- [x] Confirmed the physical host remains the existing Dell Proxmox server `pve01`.
+- [x] Confirmed the development VM is `dev01`, currently on `192.168.0.245`.
+- [x] Confirmed the development source code is located at `/home/dominique/projects/familyRotation`.
+- [x] Confirmed the deployment target VM is `apps-01` at `192.168.0.47`.
+- [x] Confirmed the deployment source directory is `/home/dominique/deployments/familyRotation` on the app VM.
+- [x] Confirmed the application is a Node.js/Express service serving both frontend and API.
+- [x] Confirmed the Docker image is `family-rotation:local`, built from the existing Dockerfile.
+- [x] Confirmed the live container is `family-rotation` and uses a `restart: unless-stopped` policy.
+- [x] Confirmed the service is published at `192.168.0.47:3000:3000`.
+- [x] Confirmed runtime config comes from the deployment directory `.env` and is stored with permissions `600`.
+- [x] Confirmed runtime settings include `NODE_ENV=production`, `PORT=3000`, and `DATA_DIR=/app/data`.
+- [x] Confirmed the named Docker volume `family-rotation-data` is mounted at `/app/data`.
+- [x] Confirmed the app uses external MongoDB Atlas for the database and Amazon S3 for photo storage.
+- [x] Confirmed the public URL is `https://rotation.thehoseas.com/`.
+- [x] Confirmed the Cloudflare Tunnel routes that hostname to the HTTP service on `192.168.0.47:3000`.
+- [x] Confirmed the `/api/health` endpoint returned HTTP `200` with `ok: true`, `storageMode: "mongo"`, `database: "connected"`, and `photoStorage: "s3"`.
+- [x] Confirmed public access was reported working after the route was established.
+- [x] Confirmed the deployment currently depends on manual source transfer from `dev01` to `apps-01`, building the image on `apps-01`, and recreating the container.
+- [x] Confirmed Social Ring remains a separate app on port `8080`.
+- [ ] Confirmed Fly.io resource removal or billing cancellation; the migration was discussed, but no closure proof was documented.
+- [ ] Confirmed GitHub remote or automatic deployment workflow for this app.
+- [ ] Confirmed automated monitoring, backup/restore validation, and rollback execution.
+- [ ] Confirmed the Node 20 / AWS SDK warning was resolved; the runtime upgrade remains follow-up work.
+- [ ] Confirmed full operational recovery for Atlas, S3, and the container environment; existing dev01 backups do not cover those services.
+
+## Troubleshooting and operational lessons for Family Rotation
+
+- [x] Production startup refused an `AUTH_TOKEN_SECRET` shorter than 32 characters; the replacement value was configured following the requirement, but the secret itself was not recorded here.
+- [x] Editing the `.env` file only on `dev01` does not update `apps-01` or the existing container.
+- [x] Docker administration on `apps-01` currently uses `sudo`.
+- [x] An empty `SHORTLIST_ARCHIVE_PHONES` value produced a warning about unavailable archive permissions.
+- [x] The image uses Node 20 and emitted an AWS SDK support warning; the runtime upgrade is tracked as follow-up work rather than claimed complete.
+- [x] Recreating the container preserves the named volume `family-rotation-data`; deleting the volume does not.
+- [x] The named volume is not a backup for Atlas or S3 and does not automatically migrate pre-existing local files or data.
+- [x] Existing dev01 project backups do not establish recovery for Atlas, S3, or the live app VM itself.
 
 ## Current deferred work
 

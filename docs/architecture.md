@@ -1,8 +1,8 @@
 # HomeLab Architecture — Current State
 
-**Recorded:** October 31, 2026
+**Recorded:** November 15, 2026
 
-**Status:** Reflects the verified single-host Proxmox lab, monitoring stack, the public Social Ring deployment on the dedicated Apps VM, and a separate Mac mini local AI assistant.
+**Status:** Reflects the verified Proxmox lab, the public Social Ring deployment, the Family Rotation deployment on the Apps VM, and a separate Mac mini local AI assistant. This document distinguishes verified runtime facts from work still pending verification.
 
 This document describes what is running today. Planned equipment and services are separated from deployed components so the architecture does not overstate the current lab.
 
@@ -13,18 +13,25 @@ flowchart TD
     I[Internet] --> A[AT&T gateway]
     A --> R[TP-Link Archer AX55]
     R --> P[Dell OptiPlex 3070\nProxmox VE: pve01]
-    R --> M[Mac\nBrowser + SSH administration]
+    R --> M[Mac\nVS Code + SSH administration]
     R --> AI["2014 Mac mini: local AI assistant"]
     P --> B[vmbr0 Linux bridge]
     B --> V1[VM 100: docker01\nUbuntu Server 24.04.5 LTS]
     B --> V2[VM 101: apps-01\nUbuntu Server 24.04.5 LTS]
+    B --> V3[VM 102: dev01\nUbuntu Server 24.04.5 LTS]
     V2 --> Nginx["Nginx container\nServes /srv/social-ring"]
+    V2 --> FR["Docker: family-rotation\nNode.js/Express app on :3000"]
     Nginx --> CF[Cloudflare Tunnel]
+    FR --> CF2[Cloudflare Tunnel]
     CF --> WWW[https://www.social-ring.com]
     CF --> LAB[https://lab.social-ring.com]
+    CF2 --> ROT[https://rotation.thehoseas.com/]
+    FR --> ATLAS[MongoDB Atlas]
+    FR --> S3[Amazon S3 for photos]
     V1 --> Portainer[Portainer CE + monitoring stack]
     V1 --> Kuma[Uptime Kuma]
     Kuma -->|local checks| Nginx
+    Kuma -->|local checks| FR
 ```
 
 The Archer AX55 provides the LAN connectivity used by the current lab and holds the DHCP reservation for `docker01`. The Proxmox management interface and the Ubuntu guest are reachable only on the local/private network unless a later remote-access design explicitly exposes or tunnels them.
@@ -126,6 +133,60 @@ The current public website request path is intentionally simple and local to the
 5. Uptime Kuma checks the local HTTP endpoint to confirm the site is up before wider public access is considered stable.
 
 This is a static site workflow, not a backend service with database migrations or a Kubernetes rollout. The deployment automation is complete for the site’s current scope.
+
+## Family Rotation deployment (verified November 15, 2026)
+
+Family Rotation is a separate application from Social Ring and is not part of the static-site deployment flow. The runtime is hosted from the home lab on `apps-01`, with a manually managed Docker deployment and Cloudflare Tunnel routing to the public hostname.
+
+### Architecture
+
+```mermaid
+flowchart LR
+    M[Mac / VS Code] --> D[dev01
+source editing and development]
+    D -->|routine source sync| A[apps-01
+Docker host for deployed app]
+    A --> C[family-rotation container]
+    C -->|HTTP on :3000| H[Cloudflare Tunnel]
+    H --> P[https://rotation.thehoseas.com/]
+    C --> T[MongoDB Atlas]
+    C --> S[Amazon S3]
+```
+
+### Operational boundaries
+
+- `dev01` is the development workspace and source control/working copy location.
+- `apps-01` is the deployment host and runs the app container independently of the Mac and `dev01`.
+- The Mac is the interface used for editing and administrative work; it is not required for the deployed app to keep running.
+- The Dell Proxmox host, `apps-01`, Docker, Cloudflare Tunnel, the home power/internet connection, and the external Atlas/S3 services are all part of the runtime dependency chain.
+- Social Ring remains a separate app and is served on port `8080`; it is not the Family Rotation runtime.
+- The prior Fly.io deployment was discussed during migration, but no verified documentation confirms Fly.io resources or billing were removed.
+
+### Verified facts
+
+- Physical host: `pve01` on the existing Dell Proxmox server.
+- Development VM: `dev01`, current IP `192.168.0.245`.
+- Development source: `/home/dominique/projects/familyRotation`.
+- Application VM: `apps-01`, IP `192.168.0.47`.
+- Deployment source: `/home/dominique/deployments/familyRotation`.
+- Runtime: Node.js/Express service serving frontend and API.
+- Docker image: `family-rotation:local` built from the existing Dockerfile.
+- Container: `family-rotation` with a `restart: unless-stopped` policy.
+- Published port: `192.168.0.47:3000:3000`.
+- Runtime config: `NODE_ENV=production`, `PORT=3000`, `DATA_DIR=/app/data` in the deployment `.env`, with file permissions `600`.
+- Data volume: `family-rotation-data` mounted at `/app/data`.
+- Public URL: `https://rotation.thehoseas.com/`.
+- Public access was reported working through the existing Cloudflare Tunnel to `192.168.0.47:3000`.
+- Health endpoint: `/api/health` returned HTTP `200` with `ok: true`, `storageMode: "mongo"`, `database: "connected"`, and `photoStorage: "s3"`.
+- Application data is stored in MongoDB Atlas and photos in Amazon S3.
+
+### Pending verification and follow-up
+
+- Automatic deployment workflow check is still pending.
+- A confirmed GitHub remote is not documented for this application.
+- Backup and restore verification for Atlas, S3, and the app VM remain pending.
+- Container rollback testing remains pending.
+- Runtime upgrade for the Node 20/AWS SDK warning remains follow-up work.
 
 ## Recovery checkpoints
 

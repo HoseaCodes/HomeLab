@@ -184,6 +184,11 @@ Missing: `wireshark`/`tshark`, `nmap`, `ftp`/`lftp` client, any VM tool (`lima`,
 
 *(filled in as we go)*
 
+## Open questions
+
+*(filled in as we go)*
+
+
 ---
 
 # PHASE 1 — Understand "What Is a Server?"

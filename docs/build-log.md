@@ -1,6 +1,6 @@
 # HomeLab Build Log
 
-**Last updated:** November 15, 2026
+**Last updated:** November 18, 2026
 
 This log separates verified milestones from plans. A check mark means the work was observed or later confirmed in the project documentation; an open item means the detail is still missing or the work remains planned.
 
@@ -192,9 +192,29 @@ Relocation is not complete until the post-move checks pass.
 - [x] The named volume is not a backup for Atlas or S3 and does not automatically migrate pre-existing local files or data.
 - [x] Existing dev01 project backups do not establish recovery for Atlas, S3, or the live app VM itself.
 
+## November 18, 2026 — SneakerAPI deployment on the Apps VM
+
+- [x] Confirmed the source project is `/home/dominique/projects/sneakerapi` on `dev01`.
+- [x] Confirmed the deployed source directory is `/home/dominique/deployments/sneakerapi` on `apps-01`.
+- [x] Confirmed Docker Compose runs separate `sneakerapi`, `postgres`, and `redis` containers.
+- [x] Confirmed the SneakerAPI container listens on container port `3000`.
+- [x] Confirmed Docker publishes `192.168.0.47:3001:3000`.
+- [x] Confirmed the public hostname `https://sneakerapi.thehoseas.com/` was hosted through existing Cloudflare infrastructure.
+- [x] Confirmed `/api/health` returned HTTP `200` locally and a JSON response containing `status: ok`.
+- [x] Confirmed PostgreSQL and Redis containers were running; PostgreSQL reported healthy.
+- [ ] Confirm public `/api/health` and `/api/releases` behavior through the Cloudflare hostname.
+- [ ] Resolve PostgreSQL authentication between Prisma, the Compose environment, and the initialized database volume.
+- [ ] Confirm Prisma migrations, database ownership, and shadow-database configuration.
+- [ ] Confirm `/api/releases` returns successful data rather than HTTP `500`.
+- [ ] Confirm application monitoring, backup/restore, automatic deployment, and rollback testing.
+- [ ] Correct the Docker health check so it tests `/api/health` instead of `/health`.
+- [ ] Remove the obsolete Compose `version` declaration in a future source cleanup.
+
+The public hostname was reported hosted, but this record does not claim database availability or a successful API data request until they are observed through live tests.
+
 ## Current deferred work
 
-- [ ] Deploy first backend application and database workload.
+- [ ] Resolve and verify the SneakerAPI PostgreSQL role, credentials, migrations, releases route, and public health/API checks.
 - [ ] Record and pin exact container image versions/digests.
 - [ ] Establish a longer monitoring baseline before capacity conclusions.
 - [ ] Add physical Proxmox host metrics.

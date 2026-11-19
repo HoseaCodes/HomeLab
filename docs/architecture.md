@@ -1,8 +1,8 @@
 # HomeLab Architecture — Current State
 
-**Recorded:** November 15, 2026
+**Recorded:** November 18, 2026
 
-**Status:** Reflects the verified Proxmox lab, the public Social Ring deployment, the Family Rotation deployment on the Apps VM, and a separate Mac mini local AI assistant. This document distinguishes verified runtime facts from work still pending verification.
+**Status:** Reflects the verified Proxmox lab, public Social Ring and Family Rotation deployments, and the partially deployed SneakerAPI application on `apps-01`. SneakerAPI hosting and local startup are documented separately from its unresolved PostgreSQL authentication and API verification.
 
 This document describes what is running today. Planned equipment and services are separated from deployed components so the architecture does not overstate the current lab.
 
@@ -187,6 +187,40 @@ Docker host for deployed app]
 - Backup and restore verification for Atlas, S3, and the app VM remain pending.
 - Container rollback testing remains pending.
 - Runtime upgrade for the Node 20/AWS SDK warning remains follow-up work.
+
+## SneakerAPI deployment (November 18, 2026)
+
+SneakerAPI is a separate Docker Compose application from Social Ring and Family Rotation.
+
+```mermaid
+flowchart LR
+    D[dev01 / development source] -->|source transfer| A[apps-01 / Docker host]
+    A --> API[SneakerAPI container
+host port 3001]
+    API --> PG[PostgreSQL container]
+    API --> Redis[Redis container]
+    API --> CF[Cloudflare Tunnel]
+    CF --> Public[https://sneakerapi.thehoseas.com/]
+```
+
+Verified deployment observations:
+
+- The public hostname `https://sneakerapi.thehoseas.com/` is hosted through the existing Cloudflare infrastructure.
+- The SneakerAPI container listens inside Docker on port `3000`.
+- Docker publishes `192.168.0.47:3001:3000`.
+- PostgreSQL and Redis containers were observed running on `apps-01`.
+- The `/api/health` endpoint responded locally with HTTP `200`.
+- The Docker health check may remain in a starting state because the source currently checks `/health`, while the app exposes `/api/health`.
+
+Not yet verified:
+
+- Public `/api/health` and `/api/releases` responses through the hostname.
+- Prisma migration against PostgreSQL.
+- `/api/releases` database behavior.
+- PostgreSQL role, password, owner, and shadow-database state.
+- Automatic deployment, application monitoring, backups, restore testing, and rollback execution.
+
+See [SneakerAPI deployment](sneakerapi.md) for the operations runbook and troubleshooting boundaries.
 
 ## Recovery checkpoints
 

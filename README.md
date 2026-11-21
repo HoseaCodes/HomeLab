@@ -8,7 +8,7 @@ Public notes are kept intentionally concise and sanitized, with the emphasis on 
 
 My goal is to become a stronger backend engineer by owning the full path from source code to a running service: the infrastructure, network, deployment process, data, monitoring, and operational decisions behind it.
 
-**Current milestone:** Social Ring remains publicly hosted from a dedicated Ubuntu Apps VM on the Dell Proxmox host. Nginx continues to serve the static website through Cloudflare Tunnel with HTTPS. Family Rotation is also deployed on the home lab stack: a Node.js/Express app runs in Docker on the Apps VM, is routed by Cloudflare Tunnel to `https://rotation.thehoseas.com/`, and its health endpoint at `/api/health` returned HTTP 200 with the expected operational status. SneakerAPI is hosted at `https://sneakerapi.thehoseas.com/` on `apps-01`; Fastify and Docker/Compose have started and `/api/health` has responded locally with HTTP 200, but database authentication and `/api/releases` still require verification. The application sources are manually transferred, built or started with Docker, and containers are recreated after configuration changes. No confirmed GitHub remote or automatic deployment workflow is documented for Family Rotation or SneakerAPI.
+**Current milestone:** Social Ring remains publicly hosted from a dedicated Ubuntu Apps VM on the Dell Proxmox host. Nginx continues to serve the static website through Cloudflare Tunnel with HTTPS. Family Rotation is deployed on the home lab stack, and SneakerAPI is hosted through Docker/Cloudflare with database verification still open. Bronco/DR Mobile Detailing is also being migrated from Vercel to `apps-01` using Docker; source transfer began, but the container and public route remain pending verification. Application sources are manually transferred, while containers are recreated after configuration changes. No confirmed GitHub remote or automatic deployment workflow is documented for Family Rotation or SneakerAPI.
 
 **Remote development milestone:** VM `102 (dev01)` now hosts working repositories accessed through VS Code Remote SSH from the Mac. Weekly project backups upload to private AWS S3, exclude every `node_modules` directory, and expire after 35 days. Manual upload and file restore were reported complete; the first scheduled Sunday run remains pending verification.
 
@@ -23,6 +23,7 @@ Documentation set:
 - [Build log](docs/build-log.md) — dated milestones and incomplete details.
 - [Family Rotation deployment](docs/family-rotation.md) — the verified home-hosted deployment on `apps-01`, the Docker runtime, and the operations runbook.
 - [SneakerAPI deployment](docs/sneakerapi.md) — Docker Compose deployment status, Cloudflare public hostname, health checks, and known database issues.
+- [Bronco / DR Mobile Detailing](docs/bronco.md) — Vercel-to-HomeLab migration plan, Docker runtime, SMTP configuration, and verification status.
 - [Monitoring and alerting](docs/monitoring.md) — metrics, availability checks, Gmail notifications, and Social Ring validation.
 - [Social Ring deployment](docs/social-ring.md) — the public static-site deployment guide for the Apps VM.
 - [Remote development and S3 backups](docs/development-backups.md) — the `dev01` workspace, weekly project archives, and restore procedure.
@@ -30,7 +31,7 @@ Documentation set:
 - [Equipment inventory](docs/equipment-inventory.md) — in-service, purchased, and planned hardware.
 - [Documentation status](docs/documentation-status.md) — what is documented, partial, planned, or deferred.
 
-**Last updated:** November 18, 2026
+**Last updated:** November 20, 2026
 
 ## Why I am building this
 

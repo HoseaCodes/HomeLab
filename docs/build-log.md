@@ -1,6 +1,6 @@
 # HomeLab Build Log
 
-**Last updated:** November 18, 2026
+**Last updated:** November 20, 2026
 
 This log separates verified milestones from plans. A check mark means the work was observed or later confirmed in the project documentation; an open item means the detail is still missing or the work remains planned.
 
@@ -211,6 +211,28 @@ Relocation is not complete until the post-move checks pass.
 - [ ] Remove the obsolete Compose `version` declaration in a future source cleanup.
 
 The public hostname was reported hosted, but this record does not claim database availability or a successful API data request until they are observed through live tests.
+
+## November 20, 2026 — Bronco migration planning and source transfer
+
+- [x] Confirmed Bronco is a Next.js 14 application serving a marketing site and contact-form route.
+- [x] Confirmed the existing public Vercel deployment at `https://www.drmobiledetailing.com/` responded with HTTP `200`.
+- [x] Confirmed the Vercel project identifier for the Bronco working copy is present in repository metadata.
+- [x] Confirmed the contact form uses Gmail SMTP and environment variables `EMAIL_USER`, `EMAIL_PASS`, and `EMAIL_TO`.
+- [x] Confirmed Docker Engine and Docker Compose are running on `apps-01`.
+- [x] Confirmed host ports `3000` and `3001` are occupied by existing applications.
+- [x] Selected host port `3002` for a planned Bronco container mapping.
+- [x] Added a Dockerfile, standalone Next.js configuration, Compose definition, `.dockerignore`, and `/api/health` route to the source copy.
+- [x] Attempted to transfer the source to `/home/dominique/deployments/bronco` while excluding `.env`, build output, and repository metadata.
+- [ ] Confirm the deployed source directory contains the application and Docker/Compose files.
+- [ ] Confirm a production env file exists on `apps-01` with permissions `600`.
+- [ ] Build and start the Bronco container.
+- [ ] Confirm the container health endpoint at `http://192.168.0.47:3002/api/health`.
+- [ ] Test the contact form and Gmail SMTP delivery.
+- [ ] Configure and verify Cloudflare public routing.
+- [ ] Decide whether Vercel remains active after HomeLab deployment verification.
+- [ ] Add application monitoring, rollback testing, and recovery procedures.
+
+The Gmail app password visible in the development env is treated as exposed and should be rotated before production use.
 
 ## Current deferred work
 

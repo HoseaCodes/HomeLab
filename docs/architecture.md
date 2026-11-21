@@ -1,8 +1,8 @@
 # HomeLab Architecture — Current State
 
-**Recorded:** November 18, 2026
+**Recorded:** November 20, 2026
 
-**Status:** Reflects the verified Proxmox lab, public Social Ring and Family Rotation deployments, and the partially deployed SneakerAPI application on `apps-01`. SneakerAPI hosting and local startup are documented separately from its unresolved PostgreSQL authentication and API verification.
+**Status:** Reflects the verified Proxmox lab, public Social Ring and Family Rotation deployments, partially deployed SneakerAPI, and the started Bronco migration from Vercel to `apps-01`. Pending Bronco Docker and public routing checks are not described as live on the Apps VM.
 
 This document describes what is running today. Planned equipment and services are separated from deployed components so the architecture does not overstate the current lab.
 
@@ -221,6 +221,30 @@ Not yet verified:
 - Automatic deployment, application monitoring, backups, restore testing, and rollback execution.
 
 See [SneakerAPI deployment](sneakerapi.md) for the operations runbook and troubleshooting boundaries.
+
+## Bronco / DR Mobile Detailing migration (November 20, 2026)
+
+Bronco is a Next.js marketing and lead-capture application for DR Mobile Detailing.
+
+```mermaid
+flowchart LR
+    D[dev01 / source] -->|source transfer| A[apps-01 / Docker host]
+    A --> B[Bronco container / planned :3002]
+    B --> SMTP[Gmail SMTP]
+    B --> CF[Cloudflare Tunnel / pending]
+    CF --> Public[Public hostname / pending]
+```
+
+- Existing public deployment: Vercel, with `https://www.drmobiledetailing.com/` observed responding with HTTP `200`.
+- Development source: `/home/dominique/projects/bronco` on `dev01`.
+- Deployment source: `/home/dominique/deployments/bronco` on `apps-01`.
+- Planned container runtime: Next.js standalone server in Docker.
+- Planned host mapping: `192.168.0.47:3002:3000`.
+- Port `3002` was selected because `3000` is used by Family Rotation and `3001` by SneakerAPI.
+- Source transfer was attempted, but image build, container startup, health response, SMTP verification, and public Cloudflare routing remain pending.
+- The Gmail app password in the development env was exposed and should be rotated before HomeLab production use.
+
+See [Bronco / DR Mobile Detailing](bronco.md) for the migration runbook and verification boundaries.
 
 ## Recovery checkpoints
 
